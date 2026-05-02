@@ -82,7 +82,7 @@
                 <button id="btnResgatar">Resgatar</button>
             </div>
 
-            <button id="btnShare" class="btn-share hide-on-print">📱 Compartilhar no WhatsApp</button>
+            <button id="btnShare" class="btn-share hide-on-print">📸 Salvar e Copiar Imagem</button>
 
             <div class="album-grid" id="albumGrid">
                 <!-- Slots gerados via JS -->
@@ -248,40 +248,38 @@
             await carregarDadosDoBanco(); 
         });
 
+        // NOVA LÓGICA DO BOTÃO COMPARTILHAR (Livre do Windows)
         document.getElementById('btnShare').addEventListener('click', async () => {
-            // Alterado para focar em document.body (Captura a tela toda em vez de apenas o container)
             const albumContainer = document.body;
             const botoesEsconder = document.querySelectorAll('.hide-on-print');
             
-            // Esconde os elementos interativos para um print limpo
             botoesEsconder.forEach(el => el.style.display = 'none');
 
             try {
-                // Background atualizado para manter a cor escura da página
                 const canvas = await html2canvas(albumContainer, { backgroundColor: '#0a0a0c', scale: 2 });
                 canvas.toBlob(async (blob) => {
                     const nomeCurto = usuarioAtual ? usuarioAtual.displayName.split(" ")[0] : "Jogador";
-                    const file = new File([blob], `album-${nomeCurto}.png`, { type: "image/png" });
                     
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: 'Meu Compêndio - Era das Tavernas',
-                            text: `Olha as cartas que eu tirei no torneio!`,
-                            files: [file]
-                        });
-                    } else {
-                        const imgURL = canvas.toDataURL("image/png");
-                        const link = document.createElement("a");
-                        link.download = `album-${nomeCurto}.png`;
-                        link.href = imgURL;
-                        link.click();
-                        alert("Imagem salva no seu computador! Agora é só arrastar para o WhatsApp Web.");
+                    // 1. Faz o download automático
+                    const imgURL = canvas.toDataURL("image/png");
+                    const link = document.createElement("a");
+                    link.download = `album-${nomeCurto}.png`;
+                    link.href = imgURL;
+                    link.click();
+
+                    // 2. Tenta copiar a imagem para a Área de Transferência (Clipboard)
+                    try {
+                        const item = new ClipboardItem({ "image/png": blob });
+                        await navigator.clipboard.write([item]);
+                        alert("Imagem baixada e COPIADA com sucesso! É só abrir o WhatsApp e dar Ctrl+V.");
+                    } catch (err) {
+                        // Se o navegador bloquear o Clipboard, avisa que o download foi feito
+                        alert("Imagem salva na sua pasta de Downloads! Agora é só arrastar para o WhatsApp.");
                     }
                 });
             } catch (error) {
                 console.error("Erro ao gerar a imagem:", error);
             } finally {
-                // Traz os botões de volta à tela
                 botoesEsconder.forEach(el => el.style.display = 'flex');
             }
         });
