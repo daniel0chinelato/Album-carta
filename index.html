@@ -94,8 +94,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        // Atenção aqui: alterado de signInWithPopup para signInWithRedirect
-        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -141,11 +140,10 @@
         }
         iniciarAlbumHTML();
 
-        // Alterado para Redirect
         document.getElementById('btnGoogleLogin').addEventListener('click', () => {
-            signInWithRedirect(auth, provider).catch(error => {
+            signInWithPopup(auth, provider).catch(error => {
                 console.error("Erro no login:", error);
-                alert("Falha ao redirecionar para o Google.");
+                alert("Falha ao abrir a janela do Google. Tente desativar o bloqueador de pop-ups.");
             });
         });
 
