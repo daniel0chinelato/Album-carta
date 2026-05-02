@@ -94,7 +94,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -141,9 +141,9 @@
         iniciarAlbumHTML();
 
         document.getElementById('btnGoogleLogin').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => {
+            signInWithRedirect(auth, provider).catch(error => {
                 console.error("Erro no login:", error);
-                alert("Falha ao abrir a janela do Google. Tente desativar o bloqueador de pop-ups.");
+                alert("Falha ao redirecionar para a janela do Google.");
             });
         });
 
@@ -249,12 +249,16 @@
         });
 
         document.getElementById('btnShare').addEventListener('click', async () => {
-            const albumContainer = document.getElementById('album-container');
+            // Alterado para focar em document.body (Captura a tela toda em vez de apenas o container)
+            const albumContainer = document.body;
             const botoesEsconder = document.querySelectorAll('.hide-on-print');
+            
+            // Esconde os elementos interativos para um print limpo
             botoesEsconder.forEach(el => el.style.display = 'none');
 
             try {
-                const canvas = await html2canvas(albumContainer, { backgroundColor: '#141417', scale: 2 });
+                // Background atualizado para manter a cor escura da página
+                const canvas = await html2canvas(albumContainer, { backgroundColor: '#0a0a0c', scale: 2 });
                 canvas.toBlob(async (blob) => {
                     const nomeCurto = usuarioAtual ? usuarioAtual.displayName.split(" ")[0] : "Jogador";
                     const file = new File([blob], `album-${nomeCurto}.png`, { type: "image/png" });
@@ -277,6 +281,7 @@
             } catch (error) {
                 console.error("Erro ao gerar a imagem:", error);
             } finally {
+                // Traz os botões de volta à tela
                 botoesEsconder.forEach(el => el.style.display = 'flex');
             }
         });
