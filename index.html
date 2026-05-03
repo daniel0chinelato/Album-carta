@@ -199,15 +199,16 @@
         const provider = new GoogleAuthProvider();
 
         let usuarioAtual = null;
-        const TOTAL_SLOTS = 10;
 
         // --- AUTOMAÇÃO DE CARTAS ---
-        // Basta adicionar o nome do deus aqui. O código buscará "card_NOME.png"
         const NOMES_DOS_DEUSES = ["amaterasu", "susanoo", "tsukuyomi", "quetzalcoatl", "huitzilopochtli", "tezcatlipoca","ra", "isis", "set", "zeus", "hades", "poseidon", "demeter", "freyr", "odin", "thor", "loki", "shennong", "fuxi", "nuwa"];
+        
+        // O sistema agora calcula os slots automaticamente com base na sua lista!
+        const TOTAL_SLOTS = NOMES_DOS_DEUSES.length;
         
         const cartasDisponiveis = NOMES_DOS_DEUSES.map((nome, index) => ({
             id: index + 1,
-            imagem: `card_${nome}.jpeg` // O padrão que você escolheu
+            imagem: `card_${nome}.jpeg` 
         }));
 
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
@@ -314,7 +315,6 @@
             if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu álbum está completo!");
             let sorteio = [];
             for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
-                // Sorteia baseando-se na lista atualizada de deuses
                 const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
                 sorteio.push(cartasDisponiveis[indexSorteado].id);
             }
