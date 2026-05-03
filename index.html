@@ -5,53 +5,216 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Era das Tavernas - Compendium</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Fonte Épica (Cinzel) e Fonte Base (Inter ou Segoe UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-dark: #0a0a0c;
-            --panel-bg: #141417;
+            --bg-dark: #070709;
+            --panel-bg: #0c0c0f;
             --gold: #d4af37;
             --gold-dim: #8a7322;
-            --text-light: #e0e0e0;
-            --border-radius: 8px;
+            --gold-glow: rgba(212, 175, 55, 0.15);
+            --text-light: #d1d1d1;
+            --border-radius: 2px; /* Cantos mais retos e agressivos */
+            --font-epic: 'Cinzel', serif;
+            --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-light); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-light); 
+            font-family: var(--font-body);
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-image: radial-gradient(circle at 50% 0%, #15151a 0%, var(--bg-dark) 80%);
+        }
 
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; background: radial-gradient(circle, #1a1a1f 0%, var(--bg-dark) 100%); }
-        .login-box { background-color: var(--panel-bg); padding: 3rem; border: 1px solid var(--gold-dim); border-radius: var(--border-radius); text-align: center; box-shadow: 0 0 30px rgba(212, 175, 55, 0.1); }
-        .login-box h2 { color: var(--gold); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        /* --- TIPOGRAFIA ÉPICA --- */
+        h1, h2, .card-placeholder, input, button {
+            font-family: var(--font-epic);
+        }
+
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; }
+        
+        .login-box { 
+            background-color: var(--panel-bg); 
+            padding: 4rem 3rem; 
+            border: 1px solid #1f1f24; 
+            border-top: 2px solid var(--gold-dim);
+            text-align: center; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); 
+            position: relative;
+        }
+        
+        .login-box h2 { 
+            color: var(--gold); 
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem; 
+            letter-spacing: 4px; 
+            text-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .login-box p {
+            font-family: var(--font-epic);
+            color: #666;
+            letter-spacing: 1px;
+            margin-bottom: 2.5rem;
+        }
 
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; padding: 2rem; }
-        .container { background-color: var(--panel-bg); border: 1px solid #2a2a2e; border-radius: var(--border-radius); padding: 3rem 2rem 2rem; width: 100%; max-width: 1000px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-top: 50px; position: relative; }
-        .hero-seal { width: 120px; height: 120px; background: radial-gradient(circle, var(--panel-bg) 0%, var(--bg-dark) 100%); border: 2px solid var(--gold-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: -50px; left: 50%; transform: translateX(-50%); box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
-        .hero-seal::after { content: "⚔️"; font-size: 2.5rem; }
+        
+        .container { 
+            background-color: var(--panel-bg); 
+            border: 1px solid #1a1a1f; 
+            border-top: 2px solid var(--gold-dim);
+            padding: 4rem 2rem 3rem; 
+            width: 100%; 
+            max-width: 1000px; 
+            text-align: center; 
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7); 
+            margin-top: 60px; 
+            position: relative; 
+        }
+        
+        .hero-seal { 
+            width: 100px; 
+            height: 100px; 
+            background: #000; 
+            border: 1px solid var(--gold); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: absolute; 
+            top: -50px; 
+            left: 50%; 
+            transform: translateX(-50%) rotate(45deg); /* Transformado em um losango */
+            box-shadow: 0 0 20px var(--gold-glow); 
+        }
+        
+        .hero-seal::after { 
+            content: "⚔️"; 
+            font-size: 2rem; 
+            transform: rotate(-45deg); /* Desfaz a rotação para o ícone ficar reto */
+        }
 
-        h1 { font-size: 2rem; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-top: 2rem; margin-bottom: 0.5rem; }
-        p { color: #888; margin-bottom: 2rem; }
+        h1 { 
+            font-size: 2.5rem; 
+            color: var(--gold); 
+            letter-spacing: 3px; 
+            margin-top: 1rem; 
+            margin-bottom: 0.5rem; 
+            font-weight: 700;
+        }
+        
+        p { color: #555; margin-bottom: 2.5rem; font-size: 0.95rem; }
 
-        input { background-color: #000; border: 1px solid var(--gold-dim); color: var(--gold); padding: 12px 20px; border-radius: 4px; font-size: 1rem; outline: none; width: 250px; transition: border-color 0.3s ease; text-transform: uppercase; }
-        input:focus { border-color: var(--gold); }
-        .input-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem; }
+        /* --- BOTÕES E INPUTS (Estilo Ghost/Premium) --- */
+        input { 
+            background-color: #030304; 
+            border: 1px solid #333; 
+            color: var(--gold); 
+            padding: 12px 20px; 
+            font-size: 1.2rem; 
+            outline: none; 
+            width: 280px; 
+            transition: all 0.3s ease; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        input:focus { border-color: var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+        
+        .input-group { display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; }
 
-        button { background-color: var(--gold-dim); color: #000; border: none; padding: 12px 24px; font-weight: bold; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.3s ease; }
-        button:hover { background-color: var(--gold); transform: scale(1.05); }
-        .btn-google { background-color: #fff; color: #333; display: flex; align-items: center; gap: 10px; margin: 0 auto; }
-        .btn-google:hover { background-color: #eee; transform: scale(1.05); }
-        .btn-share { background-color: #25D366; color: white; margin-bottom: 2rem; display: flex; align-items: center; gap: 8px; margin-left: auto; margin-right: auto; }
-        .btn-share:hover { background-color: #128C7E; }
-        .btn-logout { background-color: #333; color: #fff; font-size: 0.8rem; padding: 8px 16px; margin-top: 20px; }
-        .btn-logout:hover { background-color: #555; }
+        button { 
+            background-color: transparent; 
+            color: var(--gold); 
+            border: 1px solid var(--gold-dim); 
+            padding: 12px 30px; 
+            font-size: 1rem;
+            font-weight: 600; 
+            letter-spacing: 2px;
+            cursor: pointer; 
+            transition: all 0.4s ease; 
+        }
+        
+        button:hover { 
+            background-color: var(--gold); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--gold-glow); 
+        }
 
-        .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; justify-items: center; padding-top: 1rem; border-top: 1px solid #2a2a2e; }
-        .card { width: 160px; height: 220px; background-color: #0f0f11; border: 2px dashed #333; border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: all 0.5s ease; user-select: none; }
-        .card.revealed { border: 2px solid var(--gold); border-style: solid; background-color: #1a1a1a; box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); }
+        /* Variações de Botões */
+        .btn-google { border-color: #555; color: #ccc; display: flex; align-items: center; gap: 12px; margin: 0 auto; }
+        .btn-google:hover { background-color: #fff; color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        
+        .btn-share { border-color: #1a5e33; color: #25D366; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; margin-left: auto; margin-right: auto; }
+        .btn-share:hover { background-color: #25D366; color: #000; border-color: #25D366; box-shadow: 0 0 20px rgba(37, 211, 102, 0.3); }
+        
+        .btn-logout { border-color: #333; color: #666; font-size: 0.8rem; padding: 8px 20px; margin-top: 3rem; }
+        .btn-logout:hover { background-color: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
+
+        /* --- GRID E CARTAS --- */
+        .album-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; 
+            justify-items: center; 
+            padding-top: 2rem; 
+            border-top: 1px solid #1a1a1f; 
+        }
+        
+        .card { 
+            width: 160px; 
+            height: 224px; /* Proporção clássica de TCG (2.5x3.5) */
+            background-color: #050505; 
+            border: 1px dashed #222; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
+            transition: all 0.5s ease; 
+            user-select: none; 
+        }
+        
+        .card.revealed { 
+            border: 1px solid var(--gold); 
+            background-color: #000; 
+            box-shadow: 0 0 20px var(--gold-glow); 
+        }
+        
         .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; }
         .card.revealed img { display: block; }
-        .card-placeholder { color: #333; font-size: 2.5rem; }
+        
+        .card-placeholder { color: #1a1a1a; font-size: 4rem; font-weight: 900; }
         .card.revealed .card-placeholder { display: none; }
-        .watermark { position: absolute; bottom: 10px; width: 100%; text-align: center; font-size: 0.7rem; color: rgba(255, 255, 255, 0.6); background: rgba(0, 0, 0, 0.8); padding: 3px 0; display: none; font-weight: bold; letter-spacing: 1px; }
+        
+        .watermark { 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 0.65rem; 
+            color: rgba(212, 175, 55, 0.5); /* Marca d'água agora é dourada sutil */
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 10px 0 5px; 
+            display: none; 
+            font-family: var(--font-body);
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            text-transform: uppercase;
+        }
         .card.revealed .watermark { display: block; }
+        
         .hide-on-print { display: flex; }
     </style>
 </head>
@@ -61,10 +224,10 @@
     <div id="login-screen">
         <div class="login-box">
             <h2>Portões da Taverna</h2>
-            <p style="margin-bottom: 20px;">Identifique-se para acessar seu compêndio.</p>
+            <p>Apresente-se para acessar o compêndio</p>
             <button id="btnGoogleLogin" class="btn-google">
                 <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-                Entrar com Google
+                Revelar Identidade
             </button>
         </div>
     </div>
@@ -75,23 +238,24 @@
             <div class="hero-seal"></div>
             <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
             
-            <p class="hide-on-print">Insira seu código para invocar cartas para o seu álbum.</p>
+            <p class="hide-on-print">Os deuses aguardam o seu chamado.</p>
 
             <div class="input-group hide-on-print">
-                <input type="text" id="codigoInput" placeholder="DIGITE O CÓDIGO" maxlength="15">
-                <button id="btnResgatar">Resgatar</button>
+                <input type="text" id="codigoInput" placeholder="CÓDIGO DE RESGATE" maxlength="15">
+                <button id="btnResgatar">Invocar</button>
             </div>
 
-            <button id="btnShare" class="btn-share hide-on-print">📸 Salvar e Copiar Imagem</button>
+            <button id="btnShare" class="btn-share hide-on-print">📸 Forjar Cópia (Copiar Imagem)</button>
 
             <div class="album-grid" id="albumGrid">
                 <!-- Slots gerados via JS -->
             </div>
 
-            <button id="btnLogout" class="btn-logout hide-on-print">Sair da Conta</button>
+            <button id="btnLogout" class="btn-logout hide-on-print">Abandonar a Taverna</button>
         </div>
     </div>
 
+    <!-- O SCRIPT DO FIREBASE CONTINUA INTACTO AQUI -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
         import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
@@ -115,12 +279,12 @@
         const TOTAL_SLOTS = 10;
         
         const cartasDisponiveis = [
-            { id: 1, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=Map:+Acropolis" },
-            { id: 2, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=Map:+Alfheim" },
-            { id: 3, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=God:+Odin" },
-            { id: 4, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=God:+Zeus" },
-            { id: 5, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=God:+Isis" },
-            { id: 6, imagem: "https://via.placeholder.com/160x220/111111/d4af37?text=Player+Elite" }
+            { id: 1, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Map:+Acropolis" },
+            { id: 2, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Map:+Alfheim" },
+            { id: 3, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Odin" },
+            { id: 4, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Zeus" },
+            { id: 5, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Isis" },
+            { id: 6, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Player+Elite" }
         ];
 
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
@@ -210,7 +374,7 @@
             const codigoDigitado = input.value.trim().toUpperCase();
 
             if (!codigosValidos.includes(codigoDigitado)) {
-                alert("Código inválido ou não existe.");
+                alert("Código inválido ou os Deuses já o consumiram.");
                 return;
             }
 
@@ -219,16 +383,16 @@
             const dados = docSnap.data();
 
             if (dados.codigos_usados && dados.codigos_usados.includes(codigoDigitado)) {
-                alert("Você já usou este código!");
+                alert("Este feitiço já foi lançado por você!");
                 return;
             }
 
             if (dados.cartas_desbloqueadas && dados.cartas_desbloqueadas.length >= TOTAL_SLOTS) {
-                alert("Seu álbum já está cheio!");
+                alert("Seu compêndio já está completo!");
                 return;
             }
 
-            alert("Código aceito! Os Deuses lhe enviam um pacote...");
+            alert("Código aceito! Invocando novas cartas...");
             
             let cartasJaTiradas = dados.cartas_desbloqueadas ? dados.cartas_desbloqueadas.length : 0;
             let cartasParaSortear = Math.min(3, TOTAL_SLOTS - cartasJaTiradas);
@@ -248,7 +412,6 @@
             await carregarDadosDoBanco(); 
         });
 
-        // NOVA LÓGICA DO BOTÃO COMPARTILHAR (Livre do Windows)
         document.getElementById('btnShare').addEventListener('click', async () => {
             const albumContainer = document.body;
             const botoesEsconder = document.querySelectorAll('.hide-on-print');
@@ -256,25 +419,22 @@
             botoesEsconder.forEach(el => el.style.display = 'none');
 
             try {
-                const canvas = await html2canvas(albumContainer, { backgroundColor: '#0a0a0c', scale: 2 });
+                const canvas = await html2canvas(albumContainer, { backgroundColor: '#070709', scale: 2 });
                 canvas.toBlob(async (blob) => {
                     const nomeCurto = usuarioAtual ? usuarioAtual.displayName.split(" ")[0] : "Jogador";
                     
-                    // 1. Faz o download automático
                     const imgURL = canvas.toDataURL("image/png");
                     const link = document.createElement("a");
-                    link.download = `album-${nomeCurto}.png`;
+                    link.download = `compendio-${nomeCurto}.png`;
                     link.href = imgURL;
                     link.click();
 
-                    // 2. Tenta copiar a imagem para a Área de Transferência (Clipboard)
                     try {
                         const item = new ClipboardItem({ "image/png": blob });
                         await navigator.clipboard.write([item]);
-                        alert("Imagem baixada e COPIADA com sucesso! É só abrir o WhatsApp e dar Ctrl+V.");
+                        alert("Compêndio forjado e copiado! Use Ctrl+V no WhatsApp para compartilhar.");
                     } catch (err) {
-                        // Se o navegador bloquear o Clipboard, avisa que o download foi feito
-                        alert("Imagem salva na sua pasta de Downloads! Agora é só arrastar para o WhatsApp.");
+                        alert("Imagem salva nas suas transferências! Arraste para o WhatsApp.");
                     }
                 });
             } catch (error) {
