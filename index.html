@@ -277,7 +277,7 @@
             if (snap.exists()) {
                 const dados = snap.data();
                 nomeParaExibir = dados.nome || nomeParaExibir;
-                renderizarGrid(dados.cartas_desbloqueadas);
+                renderizarGrid(dados.cartas_desbloqueadas || []);
             } else {
                 await setDoc(userRef, { nome: nomeParaExibir, email: usuarioAtual.email, cartas_desbloqueadas: [], codigos_usados: [] });
                 renderizarGrid([]);
@@ -285,19 +285,30 @@
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
+        // --- SISTEMA DE RENDERIZAÇÃO DO ÁLBUM (POSIÇÕES FIXAS) ---
         function renderizarGrid(cartasIds) {
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
+            
+            // 1. Filtro de Segurança: Converte tudo para número para evitar o erro do Firebase
+            const cartasSeguras = cartasIds.map(id => Number(id));
+
             for (let i = 1; i <= TOTAL_SLOTS; i++) {
-                const idCarta = cartasIds[i - 1];
-                const cartaDados = cartasDisponiveis.find(c => c.id === idCarta);
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card' + (idCarta ? ' revealed' : '');
-                cardDiv.innerHTML = `<img src="${idCarta ? cartaDados.imagem : ''}" style="${idCarta ? 'display:block' : ''}">`;
+                // 2. Lógica de Álbum Fixo: O ID 'i' representa a posição fixa da carta
+                const temEssaCarta = cartasSeguras.includes(i);
+                const cartaDados = cartasDisponiveis.find(c => c.id === i);
                 
-                if (idCarta) {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card' + (temEssaCarta ? ' revealed' : '');
+                
+                // Se o jogador tiver a carta, a imagem aparece. Se não, fica o quadrado tracejado vazio.
+                if (temEssaCarta && cartaDados) {
+                    cardDiv.innerHTML = `<img src="${cartaDados.imagem}" style="display:block">`;
                     cardDiv.onclick = () => openModal(cartaDados.imagem);
+                } else {
+                    cardDiv.innerHTML = ``; // Deixa vazio e tracejado
                 }
+                
                 grid.appendChild(cardDiv);
             }
         }
@@ -339,7 +350,8 @@
 
             // Se o código tiver o array "cartas_recompensa" configurado no Firestore
             if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
-                cartasParaAdicionar = dadosCodigo.cartas_recompensa;
+                // Força os números vindo do Firebase a serem números de fato
+                cartasParaAdicionar = dadosCodigo.cartas_recompensa.map(id => Number(id));
             } else {
                 // Se não tiver recompensa específica configurada, faz o sorteio de 3 cartas
                 if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu compêndio já está completo!");
