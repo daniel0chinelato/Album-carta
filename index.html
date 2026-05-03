@@ -144,15 +144,18 @@
 
         let usuarioAtual = null;
         const TOTAL_SLOTS = 10;
+        
+        // ---- AQUI ESTÃO AS SUAS CARTAS ----
         const cartasDisponiveis = [
-            { id: 1, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Acropolis" },
+            { id: 1, imagem: "ra_teste.jpeg" }, // Sua nova imagem adicionada aqui!
             { id: 2, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Alfheim" },
             { id: 3, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Odin" },
             { id: 4, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Zeus" },
             { id: 5, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Isis" },
             { id: 6, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Elite" }
         ];
-        const codigosValidos = ["TAVERNAS-LIVE", "EPICOS2026", "BRIGAS-BAR"];
+
+        const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
         document.getElementById('tabLogin').onclick = () => {
             document.getElementById('formLogin').classList.add('active');
@@ -180,7 +183,6 @@
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await updateProfile(res.user, { displayName: name });
                 
-                // Salva no Firestore com o nome manual imediatamente
                 const userRef = doc(db, "usuarios", res.user.uid);
                 await setDoc(userRef, { 
                     nome: name, 
@@ -224,7 +226,6 @@
                 nomeParaExibir = dados.nome || nomeParaExibir;
                 renderizarGrid(dados.cartas_desbloqueadas, nomeParaExibir);
             } else {
-                // Caso entre via Google pela 1ª vez
                 await setDoc(userRef, { 
                     nome: nomeParaExibir, 
                     email: usuarioAtual.email, 
