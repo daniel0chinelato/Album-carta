@@ -6,7 +6,6 @@
     <title>Era das Tavernas - Compendium</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
-    <!-- Tipografia Épica -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
@@ -20,7 +19,6 @@
             --gold-glow: rgba(212, 175, 55, 0.15);
             --text-light: #d1d1d1;
             --font-epic: 'Cinzel', serif;
-            /* Dimensões Atualizadas */
             --card-width: 167px;
             --card-height: 224px;
             --card-radius: 5px;
@@ -60,7 +58,6 @@
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; padding: 2rem; }
         .container { background-color: var(--panel-bg); border: 1px solid #1a1a1f; border-top: 2px solid var(--gold-dim); padding: 4rem 2rem 3rem; width: 100%; max-width: 1000px; text-align: center; margin-top: 60px; position: relative; }
         
-        /* Selo Estilo Losango */
         .hero-seal { width: 80px; height: 80px; background: #000; border: 1px solid var(--gold); position: absolute; top: -40px; left: 50%; transform: translateX(-50%) rotate(45deg); display: flex; align-items: center; justify-content: center; }
         .hero-seal::after { content: "⚔️"; transform: rotate(-45deg); font-size: 1.5rem; }
 
@@ -71,7 +68,7 @@
         .btn-google { border-color: #444; color: #888; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-google:hover { background: #fff; color: #000; }
 
-        /* --- GRID DE CARTAS --- */
+        /* --- GRID E CARTAS --- */
         .album-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr)); 
@@ -91,15 +88,49 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
+            cursor: default;
         }
         
-        /* Estilo Limpo após Invocação */
         .card.revealed { 
             border: none; 
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .card.revealed:hover {
+            transform: scale(1.05);
         }
         
         .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; border-radius: var(--card-radius); }
         .card.revealed img { display: block; }
+
+        /* --- POPUP / MODAL --- */
+        #card-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+            animation: fadeIn 0.3s ease;
+        }
+
+        #modal-img {
+            max-width: 90%;
+            max-height: 85vh;
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            box-shadow: 0 0 40px var(--gold-glow);
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
         .hide-on-print { display: flex; }
     </style>
@@ -109,31 +140,23 @@
     <div id="login-screen">
         <div class="login-box">
             <h2>Taverna</h2>
-            
             <div class="auth-tabs">
                 <button class="tab-btn active" id="tabLogin">Entrar</button>
                 <button class="tab-btn" id="tabSignup">Criar Conta</button>
             </div>
-
             <div class="auth-form active" id="formLogin">
                 <input type="email" id="emailLogin" placeholder="E-MAIL">
                 <input type="password" id="passLogin" placeholder="SENHA">
                 <button id="btnEmailLogin">Entrar</button>
             </div>
-
             <div class="auth-form" id="formSignup">
                 <input type="text" id="nameSignup" placeholder="NOME DE JOGADOR">
                 <input type="email" id="emailSignup" placeholder="E-MAIL">
                 <input type="password" id="passSignup" placeholder="SENHA">
                 <button id="btnEmailSignup">Cadastrar</button>
             </div>
-
             <div class="divider"><span>OU</span></div>
-
-            <button id="btnGoogleLogin" class="btn-google">
-                <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.6-5.6C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4c-7.7 0-14.3 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5c3.3 6.5 10 10.9 17.8 10.9z"/><path fill="#1976D2" d="M43.6 20H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
-                Google
-            </button>
+            <button id="btnGoogleLogin" class="btn-google">Google</button>
         </div>
     </div>
 
@@ -142,17 +165,19 @@
             <div class="hero-seal"></div>
             <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
             <p class="hide-on-print">Invoque as cartas dos deuses.</p>
-
             <div class="input-group hide-on-print">
                 <input type="text" id="codigoInput" placeholder="CÓDIGO">
                 <button id="btnResgatar">Invocar</button>
             </div>
-
             <button id="btnShare" class="btn-share hide-on-print">📸 Copiar Compêndio</button>
-
             <div class="album-grid" id="albumGrid"></div>
             <button id="btnLogout" class="btn-logout hide-on-print" style="margin-top: 40px; font-size: 0.7rem; border-color: #222;">Abandonar Taverna</button>
         </div>
+    </div>
+
+    <!-- Estrutura do Modal -->
+    <div id="card-modal" class="hide-on-print">
+        <img id="modal-img" src="" alt="Carta Expandida">
     </div>
 
     <script type="module">
@@ -160,7 +185,6 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-        // Configuração Firebase mantida
         const firebaseConfig = {
             apiKey: "AIzaSyDpWcTqqQ14qNd0LAZcF8hWdc27snlBzRk",
             authDomain: "album-de-cartas-59265.firebaseapp.com",
@@ -177,7 +201,6 @@
 
         let usuarioAtual = null;
         const TOTAL_SLOTS = 10;
-        
         const cartasDisponiveis = [
             { id: 1, imagem: "ra_teste.jpeg" },
             { id: 2, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Alfheim" },
@@ -187,10 +210,19 @@
             { id: 6, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Elite" }
         ];
 
-        // Códigos válidos para o torneio Era das Tavernas
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
-        // Lógica de abas do login
+        // Modal Logic
+        const modal = document.getElementById('card-modal');
+        const modalImg = document.getElementById('modal-img');
+        modal.onclick = () => modal.style.display = 'none';
+
+        function openModal(imgSrc) {
+            modalImg.src = imgSrc;
+            modal.style.display = 'flex';
+        }
+
+        // Auth Tabs
         document.getElementById('tabLogin').onclick = () => {
             document.getElementById('formLogin').classList.add('active');
             document.getElementById('formSignup').classList.remove('active');
@@ -210,21 +242,11 @@
             const name = document.getElementById('nameSignup').value.trim();
             const email = document.getElementById('emailSignup').value.trim();
             const pass = document.getElementById('passSignup').value;
-
             if (!name || !email || !pass) return alert("Preencha todos os campos.");
-
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await updateProfile(res.user, { displayName: name });
-                
-                const userRef = doc(db, "usuarios", res.user.uid);
-                await setDoc(userRef, { 
-                    nome: name, 
-                    email: email, 
-                    cartas_desbloqueadas: [], 
-                    codigos_usados: [] 
-                });
-                
+                await setDoc(doc(db, "usuarios", res.user.uid), { nome: name, email: email, cartas_desbloqueadas: [], codigos_usados: [] });
                 location.reload(); 
             } catch (e) { alert("Erro ao cadastrar: " + e.message); }
         };
@@ -254,21 +276,14 @@
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             let nomeParaExibir = usuarioAtual.displayName || "Guerreiro";
-
             if (snap.exists()) {
                 const dados = snap.data();
                 nomeParaExibir = dados.nome || nomeParaExibir;
                 renderizarGrid(dados.cartas_desbloqueadas);
             } else {
-                await setDoc(userRef, { 
-                    nome: nomeParaExibir, 
-                    email: usuarioAtual.email, 
-                    cartas_desbloqueadas: [], 
-                    codigos_usados: [] 
-                });
+                await setDoc(userRef, { nome: nomeParaExibir, email: usuarioAtual.email, cartas_desbloqueadas: [], codigos_usados: [] });
                 renderizarGrid([]);
             }
-            
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
@@ -278,12 +293,13 @@
             for (let i = 1; i <= TOTAL_SLOTS; i++) {
                 const idCarta = cartasIds[i - 1];
                 const cartaDados = cartasDisponiveis.find(c => c.id === idCarta);
-                
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card' + (idCarta ? ' revealed' : '');
-                cardDiv.id = `slot-${i}`;
-                
                 cardDiv.innerHTML = `<img src="${idCarta ? cartaDados.imagem : ''}" style="${idCarta ? 'display:block' : ''}">`;
+                
+                if (idCarta) {
+                    cardDiv.onclick = () => openModal(cartaDados.imagem);
+                }
                 grid.appendChild(cardDiv);
             }
         }
@@ -291,41 +307,33 @@
         document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
             if (!codigosValidos.includes(cod)) return alert("Código inválido.");
-
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
-
             if (d.codigos_usados?.includes(cod)) return alert("Código já utilizado.");
             if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu álbum está completo!");
-
             let sorteio = [];
             for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
                 sorteio.push(cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)].id);
             }
-
-            await updateDoc(userRef, { 
-                cartas_desbloqueadas: arrayUnion(...sorteio), 
-                codigos_usados: arrayUnion(cod) 
-            });
+            await updateDoc(userRef, { cartas_desbloqueadas: arrayUnion(...sorteio), codigos_usados: arrayUnion(cod) });
             document.getElementById("codigoInput").value = "";
             await carregarDados();
         };
 
-        // Função de captura para compartilhamento
         document.getElementById('btnShare').onclick = async () => {
             document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
             const canvas = await html2canvas(document.body, { backgroundColor: '#070709', scale: 2 });
             canvas.toBlob(async (blob) => {
                 const imgURL = canvas.toDataURL("image/png");
                 const link = document.createElement("a");
-                link.download = `compendio-${usuarioAtual.displayName || 'taverna'}.png`;
+                link.download = `compendio.png`;
                 link.href = imgURL;
                 link.click();
                 try {
                     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-                    alert("Copiado! Agora é só colar (Ctrl+V) no WhatsApp.");
-                } catch { alert("Compêndio salvo nos downloads!"); }
+                    alert("Copiado! Use Ctrl+V no WhatsApp.");
+                } catch { alert("Salvo nos downloads!"); }
                 document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
             });
         };
