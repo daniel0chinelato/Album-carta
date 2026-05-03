@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Era das Tavernas - Compendium</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- Fonte Épica (Cinzel) e Fonte Base (Inter ou Segoe UI) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -19,243 +17,119 @@
             --gold-dim: #8a7322;
             --gold-glow: rgba(212, 175, 55, 0.15);
             --text-light: #d1d1d1;
-            --border-radius: 2px;
             --font-epic: 'Cinzel', serif;
-            --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
             background-color: var(--bg-dark); 
             color: var(--text-light); 
-            font-family: var(--font-body);
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
+            font-family: 'Segoe UI', sans-serif;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; 
             background-image: radial-gradient(circle at 50% 0%, #15151a 0%, var(--bg-dark) 80%);
         }
 
-        /* --- TIPOGRAFIA ÉPICA --- */
-        h1, h2, .card-placeholder, input, button {
-            font-family: var(--font-epic);
-        }
+        h1, h2, h3, input, button { font-family: var(--font-epic); }
 
-        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; }
-        
+        /* --- LOGIN MULTI-OPÇÃO --- */
+        #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         .login-box { 
-            background-color: var(--panel-bg); 
-            padding: 4rem 3rem; 
-            border: 1px solid #1f1f24; 
-            border-top: 2px solid var(--gold-dim);
-            text-align: center; 
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); 
-            position: relative;
+            background-color: var(--panel-bg); padding: 3rem; border: 1px solid #1f1f24; border-top: 2px solid var(--gold-dim);
+            text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); width: 400px;
         }
-        
-        .login-box h2 { 
-            color: var(--gold); 
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem; 
-            letter-spacing: 4px; 
-            text-shadow: 0 0 15px var(--gold-glow);
-        }
+        .login-box h2 { color: var(--gold); font-size: 2rem; margin-bottom: 2rem; letter-spacing: 3px; }
 
-        .login-box p {
-            font-family: var(--font-epic);
-            color: #666;
-            letter-spacing: 1px;
-            margin-bottom: 2.5rem;
-        }
+        .auth-tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: #555; cursor: pointer; font-size: 0.9rem; padding: 5px 10px; transition: 0.3s; }
+        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
 
+        .auth-form { display: flex; flex-direction: column; gap: 15px; display: none; }
+        .auth-form.active { display: flex; }
+        .auth-form input { background: #000; border: 1px solid #333; color: var(--gold); padding: 10px; text-align: center; width: 100%; font-size: 0.9rem; }
+
+        .divider { margin: 25px 0; border-top: 1px solid #222; position: relative; }
+        .divider span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); padding: 0 10px; color: #444; font-size: 0.8rem; font-family: var(--font-epic); }
+
+        /* --- APP PRINCIPAL --- */
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; padding: 2rem; }
-        
-        .container { 
-            background-color: var(--panel-bg); 
-            border: 1px solid #1a1a1f; 
-            border-top: 2px solid var(--gold-dim);
-            padding: 4rem 2rem 3rem; 
-            width: 100%; 
-            max-width: 1000px; 
-            text-align: center; 
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7); 
-            margin-top: 60px; 
-            position: relative; 
-        }
-        
-        .hero-seal { 
-            width: 100px; 
-            height: 100px; 
-            background: #000; 
-            border: 1px solid var(--gold); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: absolute; 
-            top: -50px; 
-            left: 50%; 
-            transform: translateX(-50%) rotate(45deg);
-            box-shadow: 0 0 20px var(--gold-glow); 
-        }
-        
-        .hero-seal::after { 
-            content: "⚔️"; 
-            font-size: 2rem; 
-            transform: rotate(-45deg);
-        }
+        .container { background-color: var(--panel-bg); border: 1px solid #1a1a1f; border-top: 2px solid var(--gold-dim); padding: 4rem 2rem 3rem; width: 100%; max-width: 1000px; text-align: center; margin-top: 60px; position: relative; }
+        .hero-seal { width: 80px; height: 80px; background: #000; border: 1px solid var(--gold); position: absolute; top: -40px; left: 50%; transform: translateX(-50%) rotate(45deg); display: flex; align-items: center; justify-content: center; }
+        .hero-seal::after { content: "⚔️"; transform: rotate(-45deg); font-size: 1.5rem; }
 
-        h1 { 
-            font-size: 2.5rem; 
-            color: var(--gold); 
-            letter-spacing: 3px; 
-            margin-top: 1rem; 
-            margin-bottom: 0.5rem; 
-            font-weight: 700;
-        }
+        .input-group { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; }
+        button { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 10px 25px; cursor: pointer; transition: 0.4s; font-weight: 600; letter-spacing: 1px; }
+        button:hover { background: var(--gold); color: #000; }
         
-        p { color: #555; margin-bottom: 2.5rem; font-size: 0.95rem; }
+        .btn-google { border-color: #444; color: #888; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-google:hover { background: #fff; color: #000; }
 
-        input { 
-            background-color: #030304; 
-            border: 1px solid #333; 
-            color: var(--gold); 
-            padding: 12px 20px; 
-            font-size: 1.2rem; 
-            outline: none; 
-            width: 280px; 
-            transition: all 0.3s ease; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
-            text-align: center;
-        }
-        
-        input:focus { border-color: var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
-        
-        .input-group { display: flex; justify-content: center; gap: 15px; margin-bottom: 3rem; }
-
-        button { 
-            background-color: transparent; 
-            color: var(--gold); 
-            border: 1px solid var(--gold-dim); 
-            padding: 12px 30px; 
-            font-size: 1rem;
-            font-weight: 600; 
-            letter-spacing: 2px;
-            cursor: pointer; 
-            transition: all 0.4s ease; 
-        }
-        
-        button:hover { 
-            background-color: var(--gold); 
-            color: #000; 
-            box-shadow: 0 0 20px var(--gold-glow); 
-        }
-
-        .btn-google { border-color: #555; color: #ccc; display: flex; align-items: center; gap: 12px; margin: 0 auto; }
-        .btn-google:hover { background-color: #fff; color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        
-        .btn-share { border-color: #1a5e33; color: #25D366; margin-bottom: 3rem; display: flex; align-items: center; gap: 10px; margin-left: auto; margin-right: auto; }
-        .btn-share:hover { background-color: #25D366; color: #000; border-color: #25D366; box-shadow: 0 0 20px rgba(37, 211, 102, 0.3); }
-        
-        .btn-logout { border-color: #333; color: #666; font-size: 0.8rem; padding: 8px 20px; margin-top: 3rem; }
-        .btn-logout:hover { background-color: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
-
-        .album-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; 
-            justify-items: center; 
-            padding-top: 2rem; 
-            border-top: 1px solid #1a1a1f; 
-        }
-        
-        .card { 
-            width: 160px; 
-            height: 224px; 
-            background-color: #050505; 
-            border: 1px dashed #222; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-            transition: all 0.5s ease; 
-            user-select: none; 
-        }
-        
-        .card.revealed { 
-            border: 1px solid var(--gold); 
-            background-color: #000; 
-            box-shadow: 0 0 20px var(--gold-glow); 
-        }
-        
-        .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; }
+        .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding-top: 2rem; border-top: 1px solid #1a1a1f; }
+        .card { width: 150px; height: 210px; background: #050505; border: 1px dashed #222; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .card.revealed { border: 1px solid var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+        .card img { width: 100%; height: 100%; object-fit: cover; display: none; }
         .card.revealed img { display: block; }
-        
-        .card-placeholder { color: #1a1a1a; font-size: 4rem; font-weight: 900; }
-        .card.revealed .card-placeholder { display: none; }
-        
-        .watermark { 
-            position: absolute; 
-            bottom: 0; 
-            width: 100%; 
-            text-align: center; 
-            font-size: 0.65rem; 
-            color: rgba(212, 175, 55, 0.5); 
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            padding: 10px 0 5px; 
-            display: none; 
-            font-family: var(--font-body);
-            font-weight: bold; 
-            letter-spacing: 2px; 
-            text-transform: uppercase;
-        }
+        .card-placeholder { color: #111; font-size: 3rem; }
+        .watermark { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 0.6rem; color: rgba(212, 175, 55, 0.5); background: linear-gradient(to top, #000, transparent); padding: 5px 0; display: none; }
         .card.revealed .watermark { display: block; }
-        
         .hide-on-print { display: flex; }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="login-screen">
         <div class="login-box">
-            <h2>Portões da Taverna</h2>
-            <p>Apresente-se para acessar o compêndio</p>
+            <h2>Taverna</h2>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="tabLogin">Entrar</button>
+                <button class="tab-btn" id="tabSignup">Criar Conta</button>
+            </div>
+
+            <!-- Login com Email -->
+            <div class="auth-form active" id="formLogin">
+                <input type="email" id="emailLogin" placeholder="E-MAIL">
+                <input type="password" id="passLogin" placeholder="SENHA">
+                <button id="btnEmailLogin">Entrar</button>
+            </div>
+
+            <!-- Cadastro com Email -->
+            <div class="auth-form" id="formSignup">
+                <input type="text" id="nameSignup" placeholder="NOME DE JOGADOR">
+                <input type="email" id="emailSignup" placeholder="E-MAIL">
+                <input type="password" id="passSignup" placeholder="SENHA">
+                <button id="btnEmailSignup">Cadastrar</button>
+            </div>
+
+            <div class="divider"><span>OU</span></div>
+
             <button id="btnGoogleLogin" class="btn-google">
-                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-                Revelar Identidade
+                <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.6-5.6C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4c-7.7 0-14.3 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5c3.3 6.5 10 10.9 17.8 10.9z"/><path fill="#1976D2" d="M43.6 20H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
+                Google
             </button>
         </div>
     </div>
 
-    <!-- TELA PRINCIPAL -->
     <div id="main-app">
         <div class="container" id="album-container">
             <div class="hero-seal"></div>
-            <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
-            
-            <p class="hide-on-print">Os deuses aguardam o seu chamado.</p>
+            <h1 id="displayNome">Compêndio</h1>
+            <p class="hide-on-print">Invoque as cartas dos deuses.</p>
 
             <div class="input-group hide-on-print">
-                <input type="text" id="codigoInput" placeholder="CÓDIGO DE RESGATE" maxlength="15">
+                <input type="text" id="codigoInput" placeholder="CÓDIGO">
                 <button id="btnResgatar">Invocar</button>
             </div>
 
-            <button id="btnShare" class="btn-share hide-on-print">📸 Forjar Cópia (Copiar Imagem)</button>
+            <button id="btnShare" class="btn-share hide-on-print">📸 Copiar Compêndio</button>
 
-            <div class="album-grid" id="albumGrid">
-                <!-- Slots gerados via JS -->
-            </div>
-
-            <button id="btnLogout" class="btn-logout hide-on-print">Abandonar a Taverna</button>
+            <div class="album-grid" id="albumGrid"></div>
+            <button id="btnLogout" class="btn-logout hide-on-print" style="margin-top: 40px; font-size: 0.7rem; border-color: #222;">Abandonar Taverna</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        // Atenção aqui: voltamos para signInWithPopup
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -274,175 +148,137 @@
 
         let usuarioAtual = null;
         const TOTAL_SLOTS = 10;
-        
         const cartasDisponiveis = [
-            { id: 1, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Map:+Acropolis" },
-            { id: 2, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Map:+Alfheim" },
-            { id: 3, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Odin" },
-            { id: 4, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Zeus" },
-            { id: 5, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=God:+Isis" },
-            { id: 6, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Player+Elite" }
+            { id: 1, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Acropolis" },
+            { id: 2, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Alfheim" },
+            { id: 3, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Odin" },
+            { id: 4, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Zeus" },
+            { id: 5, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Isis" },
+            { id: 6, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Elite" }
         ];
-
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
-        function iniciarAlbumHTML() {
-            const grid = document.getElementById('albumGrid');
-            grid.innerHTML = '';
-            for (let i = 1; i <= TOTAL_SLOTS; i++) {
-                grid.innerHTML += `
-                    <div class="card" id="slot-${i}">
-                        <div class="card-placeholder">?</div>
-                        <img src="" alt="Carta">
-                        <div class="watermark"></div>
-                    </div>
-                `;
-            }
-        }
-        iniciarAlbumHTML();
+        // Alternar abas de Login/Cadastro
+        document.getElementById('tabLogin').onclick = () => {
+            document.getElementById('formLogin').classList.add('active');
+            document.getElementById('formSignup').classList.remove('active');
+            document.getElementById('tabLogin').classList.add('active');
+            document.getElementById('tabSignup').classList.remove('active');
+        };
+        document.getElementById('tabSignup').onclick = () => {
+            document.getElementById('formSignup').classList.add('active');
+            document.getElementById('formLogin').classList.remove('active');
+            document.getElementById('tabSignup').classList.add('active');
+            document.getElementById('tabLogin').classList.remove('active');
+        };
 
-        // Botão de login usando Popup
-        document.getElementById('btnGoogleLogin').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(error => {
-                console.error("Erro no login:", error);
-                alert("Falha ao abrir a janela do Google. Tente desativar bloqueadores de pop-up.");
-            });
-        });
+        // --- LÓGICA DE AUTH ---
+        document.getElementById('btnGoogleLogin').onclick = () => signInWithPopup(auth, provider);
 
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            signOut(auth);
-        });
+        document.getElementById('btnEmailSignup').onclick = async () => {
+            const name = document.getElementById('nameSignup').value;
+            const email = document.getElementById('emailSignup').value;
+            const pass = document.getElementById('passSignup').value;
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: name });
+                location.reload(); // Atualiza para garantir o nome no banco
+            } catch (e) { alert("Erro ao cadastrar: " + e.message); }
+        };
+
+        document.getElementById('btnEmailLogin').onclick = () => {
+            const email = document.getElementById('emailLogin').value;
+            const pass = document.getElementById('passLogin').value;
+            signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
+        };
+
+        document.getElementById('btnLogout').onclick = () => signOut(auth);
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 usuarioAtual = user;
-                const nomeCurto = user.displayName.split(" ")[0]; 
-                document.getElementById("displayNome").innerText = nomeCurto;
-                
+                document.getElementById("displayNome").innerText = "Compêndio de " + user.displayName.split(" ")[0];
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("main-app").style.display = "flex";
-
-                await carregarDadosDoBanco();
+                await carregarDados();
             } else {
-                usuarioAtual = null;
                 document.getElementById("login-screen").style.display = "flex";
                 document.getElementById("main-app").style.display = "none";
-                iniciarAlbumHTML(); 
             }
         });
 
-        async function carregarDadosDoBanco() {
-            const userRef = doc(db, "usuarios", usuarioAtual.uid);
-            const docSnap = await getDoc(userRef);
-
-            if (docSnap.exists()) {
-                const dados = docSnap.data();
-                renderizarCartasNaTela(dados.cartas_desbloqueadas || [], dados.nome);
-            } else {
-                await setDoc(userRef, {
-                    nome: usuarioAtual.displayName,
-                    email: usuarioAtual.email,
-                    cartas_desbloqueadas: [],
-                    codigos_usados: []
-                });
-                renderizarCartasNaTela([], usuarioAtual.displayName.split(" ")[0]);
+        // --- LÓGICA DO ÁLBUM ---
+        function iniciarGrid() {
+            const grid = document.getElementById('albumGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_SLOTS; i++) {
+                grid.innerHTML += `<div class="card" id="slot-${i}"><div class="card-placeholder">?</div><img src=""><div class="watermark"></div></div>`;
             }
         }
 
-        function renderizarCartasNaTela(arrayDeIds, nomeJogador) {
-            iniciarAlbumHTML(); 
-            const watermarks = document.querySelectorAll('.watermark');
-            watermarks.forEach(wm => wm.innerText = nomeJogador);
+        async function carregarDados() {
+            iniciarGrid();
+            const userRef = doc(db, "usuarios", usuarioAtual.uid);
+            const snap = await getDoc(userRef);
+            let dados = { cartas_desbloqueadas: [], nome: usuarioAtual.displayName };
 
-            arrayDeIds.forEach((cartaId, index) => {
-                if (index < TOTAL_SLOTS) {
-                    const slot = document.getElementById(`slot-${index + 1}`);
-                    const cartaDados = cartasDisponiveis.find(c => c.id === cartaId);
-                    
-                    if (cartaDados) {
-                        slot.querySelector('img').src = cartaDados.imagem;
-                        slot.classList.add('revealed');
-                    }
+            if (snap.exists()) {
+                dados = snap.data();
+            } else {
+                await setDoc(userRef, { nome: usuarioAtual.displayName, cartas_desbloqueadas: [], codigos_usados: [] });
+            }
+
+            const watermarks = document.querySelectorAll('.watermark');
+            watermarks.forEach(wm => wm.innerText = usuarioAtual.displayName);
+
+            dados.cartas_desbloqueadas.forEach((id, i) => {
+                const carta = cartasDisponiveis.find(c => c.id === id);
+                if (carta && i < TOTAL_SLOTS) {
+                    const slot = document.getElementById(`slot-${i+1}`);
+                    slot.querySelector('img').src = carta.imagem;
+                    slot.classList.add('revealed');
                 }
             });
         }
 
-        document.getElementById('btnResgatar').addEventListener('click', async () => {
-            const input = document.getElementById("codigoInput");
-            const codigoDigitado = input.value.trim().toUpperCase();
-
-            if (!codigosValidos.includes(codigoDigitado)) {
-                alert("Código inválido ou os Deuses já o consumiram.");
-                return;
-            }
+        document.getElementById('btnResgatar').onclick = async () => {
+            const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
+            if (!codigosValidos.includes(cod)) return alert("Código inválido.");
 
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
-            const docSnap = await getDoc(userRef);
-            const dados = docSnap.data();
+            const snap = await getDoc(userRef);
+            const d = snap.data();
 
-            if (dados.codigos_usados && dados.codigos_usados.includes(codigoDigitado)) {
-                alert("Este feitiço já foi lançado por você!");
-                return;
+            if (d.codigos_usados?.includes(cod)) return alert("Já resgatado.");
+            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Álbum cheio.");
+
+            let sorteio = [];
+            for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
+                sorteio.push(cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)].id);
             }
 
-            if (dados.cartas_desbloqueadas && dados.cartas_desbloqueadas.length >= TOTAL_SLOTS) {
-                alert("Seu compêndio já está completo!");
-                return;
-            }
+            await updateDoc(userRef, { cartas_desbloqueadas: arrayUnion(...sorteio), codigos_usados: arrayUnion(cod) });
+            document.getElementById("codigoInput").value = "";
+            await carregarDados();
+        };
 
-            alert("Código aceito! Invocando novas cartas...");
-            
-            let cartasJaTiradas = dados.cartas_desbloqueadas ? dados.cartas_desbloqueadas.length : 0;
-            let cartasParaSortear = Math.min(3, TOTAL_SLOTS - cartasJaTiradas);
-            let novasCartasIds = [];
-
-            for (let i = 0; i < cartasParaSortear; i++) {
-                const sorteada = cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)];
-                novasCartasIds.push(sorteada.id);
-            }
-
-            await updateDoc(userRef, {
-                cartas_desbloqueadas: arrayUnion(...novasCartasIds),
-                codigos_usados: arrayUnion(codigoDigitado)
+        document.getElementById('btnShare').onclick = async () => {
+            const body = document.body;
+            document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
+            const canvas = await html2canvas(body, { backgroundColor: '#070709', scale: 2 });
+            canvas.toBlob(async (blob) => {
+                const imgURL = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.download = `compendio.png`;
+                link.href = imgURL;
+                link.click();
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                    alert("Copiado! Use Ctrl+V no WhatsApp.");
+                } catch { alert("Salvo nos downloads!"); }
+                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
             });
-
-            input.value = "";
-            await carregarDadosDoBanco(); 
-        });
-
-        document.getElementById('btnShare').addEventListener('click', async () => {
-            const albumContainer = document.body;
-            const botoesEsconder = document.querySelectorAll('.hide-on-print');
-            
-            botoesEsconder.forEach(el => el.style.display = 'none');
-
-            try {
-                const canvas = await html2canvas(albumContainer, { backgroundColor: '#070709', scale: 2 });
-                canvas.toBlob(async (blob) => {
-                    const nomeCurto = usuarioAtual ? usuarioAtual.displayName.split(" ")[0] : "Jogador";
-                    
-                    const imgURL = canvas.toDataURL("image/png");
-                    const link = document.createElement("a");
-                    link.download = `compendio-${nomeCurto}.png`;
-                    link.href = imgURL;
-                    link.click();
-
-                    try {
-                        const item = new ClipboardItem({ "image/png": blob });
-                        await navigator.clipboard.write([item]);
-                        alert("Compêndio forjado e copiado! Use Ctrl+V no WhatsApp para compartilhar.");
-                    } catch (err) {
-                        alert("Imagem salva nas suas transferências! Arraste para o WhatsApp.");
-                    }
-                });
-            } catch (error) {
-                console.error("Erro ao gerar a imagem:", error);
-            } finally {
-                botoesEsconder.forEach(el => el.style.display = 'flex');
-            }
-        });
-
-        document.addEventListener('contextmenu', event => event.preventDefault());
+        };
     </script>
 </body>
 </html>
