@@ -62,13 +62,31 @@
         .btn-google:hover { background: #fff; color: #000; }
 
         .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding-top: 2rem; border-top: 1px solid #1a1a1f; }
-        .card { width: 150px; height: 210px; background: #050505; border: 1px dashed #222; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .card.revealed { border: 1px solid var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+        
+        /* Ajuste na Carta para remover bordas e fundos extras */
+        .card { 
+            width: 150px; 
+            height: 210px; 
+            background: transparent; 
+            border: 1px dashed #222; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        /* Borda removida quando a carta é revelada */
+        .card.revealed { 
+            border: none; 
+            box-shadow: none; 
+        }
+        
         .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; }
         .card.revealed img { display: block; }
+        
         .card-placeholder { color: #111; font-size: 3rem; }
-        .watermark { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 0.6rem; color: rgba(212, 175, 55, 0.5); background: linear-gradient(to top, #000, transparent); padding: 5px 0; display: none; font-weight: bold; }
-        .card.revealed .watermark { display: block; }
+        
         .hide-on-print { display: flex; }
     </style>
 </head>
@@ -145,9 +163,8 @@
         let usuarioAtual = null;
         const TOTAL_SLOTS = 10;
         
-        // ---- AQUI ESTÃO AS SUAS CARTAS ----
         const cartasDisponiveis = [
-            { id: 1, imagem: "ra_teste.jpeg" }, // Sua nova imagem adicionada aqui!
+            { id: 1, imagem: "ra_teste.jpeg" },
             { id: 2, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Alfheim" },
             { id: 3, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Odin" },
             { id: 4, imagem: "https://via.placeholder.com/150x210/111/d4af37?text=Zeus" },
@@ -167,7 +184,7 @@
             document.getElementById('formSignup').classList.add('active');
             document.getElementById('formLogin').classList.remove('active');
             document.getElementById('tabSignup').classList.add('active');
-            document.getElementById('tabLogin').classList.remove('active');
+            document.getElementById('tabLogin').classList.add('active');
         };
 
         document.getElementById('btnGoogleLogin').onclick = () => signInWithPopup(auth, provider);
@@ -224,7 +241,7 @@
             if (snap.exists()) {
                 const dados = snap.data();
                 nomeParaExibir = dados.nome || nomeParaExibir;
-                renderizarGrid(dados.cartas_desbloqueadas, nomeParaExibir);
+                renderizarGrid(dados.cartas_desbloqueadas);
             } else {
                 await setDoc(userRef, { 
                     nome: nomeParaExibir, 
@@ -232,13 +249,14 @@
                     cartas_desbloqueadas: [], 
                     codigos_usados: [] 
                 });
-                renderizarGrid([], nomeParaExibir);
+                renderizarGrid([]);
             }
             
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
-        function renderizarGrid(cartasIds, nome) {
+        // Função de Grid atualizada sem o elemento de marca d'água
+        function renderizarGrid(cartasIds) {
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
             for (let i = 1; i <= TOTAL_SLOTS; i++) {
@@ -252,7 +270,6 @@
                 cardDiv.innerHTML = `
                     <div class="card-placeholder">?</div>
                     <img src="${idCarta ? cartaDados.imagem : ''}" style="${idCarta ? 'display:block' : ''}">
-                    <div class="watermark" style="${idCarta ? 'display:block' : ''}">${nome}</div>
                 `;
                 grid.appendChild(cardDiv);
             }
