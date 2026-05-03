@@ -31,7 +31,6 @@
 
         h1, h2, h3, input, button { font-family: var(--font-epic); }
 
-        /* --- LOGIN MULTI-OPÇÃO --- */
         #login-screen { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         .login-box { 
             background-color: var(--panel-bg); padding: 3rem; border: 1px solid #1f1f24; border-top: 2px solid var(--gold-dim);
@@ -45,12 +44,11 @@
 
         .auth-form { display: flex; flex-direction: column; gap: 15px; display: none; }
         .auth-form.active { display: flex; }
-        .auth-form input { background: #000; border: 1px solid #333; color: var(--gold); padding: 10px; text-align: center; width: 100%; font-size: 0.9rem; }
+        .auth-form input { background: #000; border: 1px solid #333; color: var(--gold); padding: 10px; text-align: center; width: 100%; font-size: 0.9rem; outline: none; }
 
         .divider { margin: 25px 0; border-top: 1px solid #222; position: relative; }
         .divider span { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--panel-bg); padding: 0 10px; color: #444; font-size: 0.8rem; font-family: var(--font-epic); }
 
-        /* --- APP PRINCIPAL --- */
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; padding: 2rem; }
         .container { background-color: var(--panel-bg); border: 1px solid #1a1a1f; border-top: 2px solid var(--gold-dim); padding: 4rem 2rem 3rem; width: 100%; max-width: 1000px; text-align: center; margin-top: 60px; position: relative; }
         .hero-seal { width: 80px; height: 80px; background: #000; border: 1px solid var(--gold); position: absolute; top: -40px; left: 50%; transform: translateX(-50%) rotate(45deg); display: flex; align-items: center; justify-content: center; }
@@ -66,10 +64,10 @@
         .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; padding-top: 2rem; border-top: 1px solid #1a1a1f; }
         .card { width: 150px; height: 210px; background: #050505; border: 1px dashed #222; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .card.revealed { border: 1px solid var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
-        .card img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; }
         .card.revealed img { display: block; }
         .card-placeholder { color: #111; font-size: 3rem; }
-        .watermark { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 0.6rem; color: rgba(212, 175, 55, 0.5); background: linear-gradient(to top, #000, transparent); padding: 5px 0; display: none; }
+        .watermark { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 0.6rem; color: rgba(212, 175, 55, 0.5); background: linear-gradient(to top, #000, transparent); padding: 5px 0; display: none; font-weight: bold; }
         .card.revealed .watermark { display: block; }
         .hide-on-print { display: flex; }
     </style>
@@ -85,14 +83,12 @@
                 <button class="tab-btn" id="tabSignup">Criar Conta</button>
             </div>
 
-            <!-- Login com Email -->
             <div class="auth-form active" id="formLogin">
                 <input type="email" id="emailLogin" placeholder="E-MAIL">
                 <input type="password" id="passLogin" placeholder="SENHA">
                 <button id="btnEmailLogin">Entrar</button>
             </div>
 
-            <!-- Cadastro com Email -->
             <div class="auth-form" id="formSignup">
                 <input type="text" id="nameSignup" placeholder="NOME DE JOGADOR">
                 <input type="email" id="emailSignup" placeholder="E-MAIL">
@@ -112,7 +108,7 @@
     <div id="main-app">
         <div class="container" id="album-container">
             <div class="hero-seal"></div>
-            <h1 id="displayNome">Compêndio</h1>
+            <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
             <p class="hide-on-print">Invoque as cartas dos deuses.</p>
 
             <div class="input-group hide-on-print">
@@ -158,7 +154,6 @@
         ];
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
-        // Alternar abas de Login/Cadastro
         document.getElementById('tabLogin').onclick = () => {
             document.getElementById('formLogin').classList.add('active');
             document.getElementById('formSignup').classList.remove('active');
@@ -172,23 +167,36 @@
             document.getElementById('tabLogin').classList.remove('active');
         };
 
-        // --- LÓGICA DE AUTH ---
         document.getElementById('btnGoogleLogin').onclick = () => signInWithPopup(auth, provider);
 
         document.getElementById('btnEmailSignup').onclick = async () => {
-            const name = document.getElementById('nameSignup').value;
-            const email = document.getElementById('emailSignup').value;
+            const name = document.getElementById('nameSignup').value.trim();
+            const email = document.getElementById('emailSignup').value.trim();
             const pass = document.getElementById('passSignup').value;
+
+            if (!name || !email || !pass) return alert("Preencha todos os campos.");
+
             try {
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await updateProfile(res.user, { displayName: name });
-                location.reload(); // Atualiza para garantir o nome no banco
+                
+                // Salva no Firestore com o nome manual imediatamente
+                const userRef = doc(db, "usuarios", res.user.uid);
+                await setDoc(userRef, { 
+                    nome: name, 
+                    email: email, 
+                    cartas_desbloqueadas: [], 
+                    codigos_usados: [] 
+                });
+                
+                location.reload(); 
             } catch (e) { alert("Erro ao cadastrar: " + e.message); }
         };
 
         document.getElementById('btnEmailLogin').onclick = () => {
-            const email = document.getElementById('emailLogin').value;
+            const email = document.getElementById('emailLogin').value.trim();
             const pass = document.getElementById('passLogin').value;
+            if (!email || !pass) return alert("Preencha os campos.");
             signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
         };
 
@@ -197,7 +205,6 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 usuarioAtual = user;
-                document.getElementById("displayNome").innerText = "Compêndio de " + user.displayName.split(" ")[0];
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("main-app").style.display = "flex";
                 await carregarDados();
@@ -207,38 +214,47 @@
             }
         });
 
-        // --- LÓGICA DO ÁLBUM ---
-        function iniciarGrid() {
+        async function carregarDados() {
+            const userRef = doc(db, "usuarios", usuarioAtual.uid);
+            const snap = await getDoc(userRef);
+            let nomeParaExibir = usuarioAtual.displayName || "Guerreiro";
+
+            if (snap.exists()) {
+                const dados = snap.data();
+                nomeParaExibir = dados.nome || nomeParaExibir;
+                renderizarGrid(dados.cartas_desbloqueadas, nomeParaExibir);
+            } else {
+                // Caso entre via Google pela 1ª vez
+                await setDoc(userRef, { 
+                    nome: nomeParaExibir, 
+                    email: usuarioAtual.email, 
+                    cartas_desbloqueadas: [], 
+                    codigos_usados: [] 
+                });
+                renderizarGrid([], nomeParaExibir);
+            }
+            
+            document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
+        }
+
+        function renderizarGrid(cartasIds, nome) {
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
             for (let i = 1; i <= TOTAL_SLOTS; i++) {
-                grid.innerHTML += `<div class="card" id="slot-${i}"><div class="card-placeholder">?</div><img src=""><div class="watermark"></div></div>`;
+                const idCarta = cartasIds[i - 1];
+                const cartaDados = cartasDisponiveis.find(c => c.id === idCarta);
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card' + (idCarta ? ' revealed' : '');
+                cardDiv.id = `slot-${i}`;
+                
+                cardDiv.innerHTML = `
+                    <div class="card-placeholder">?</div>
+                    <img src="${idCarta ? cartaDados.imagem : ''}" style="${idCarta ? 'display:block' : ''}">
+                    <div class="watermark" style="${idCarta ? 'display:block' : ''}">${nome}</div>
+                `;
+                grid.appendChild(cardDiv);
             }
-        }
-
-        async function carregarDados() {
-            iniciarGrid();
-            const userRef = doc(db, "usuarios", usuarioAtual.uid);
-            const snap = await getDoc(userRef);
-            let dados = { cartas_desbloqueadas: [], nome: usuarioAtual.displayName };
-
-            if (snap.exists()) {
-                dados = snap.data();
-            } else {
-                await setDoc(userRef, { nome: usuarioAtual.displayName, cartas_desbloqueadas: [], codigos_usados: [] });
-            }
-
-            const watermarks = document.querySelectorAll('.watermark');
-            watermarks.forEach(wm => wm.innerText = usuarioAtual.displayName);
-
-            dados.cartas_desbloqueadas.forEach((id, i) => {
-                const carta = cartasDisponiveis.find(c => c.id === id);
-                if (carta && i < TOTAL_SLOTS) {
-                    const slot = document.getElementById(`slot-${i+1}`);
-                    slot.querySelector('img').src = carta.imagem;
-                    slot.classList.add('revealed');
-                }
-            });
         }
 
         document.getElementById('btnResgatar').onclick = async () => {
@@ -249,33 +265,35 @@
             const snap = await getDoc(userRef);
             const d = snap.data();
 
-            if (d.codigos_usados?.includes(cod)) return alert("Já resgatado.");
-            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Álbum cheio.");
+            if (d.codigos_usados?.includes(cod)) return alert("Código já utilizado.");
+            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu álbum está completo!");
 
             let sorteio = [];
             for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
                 sorteio.push(cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)].id);
             }
 
-            await updateDoc(userRef, { cartas_desbloqueadas: arrayUnion(...sorteio), codigos_usados: arrayUnion(cod) });
+            await updateDoc(userRef, { 
+                cartas_desbloqueadas: arrayUnion(...sorteio), 
+                codigos_usados: arrayUnion(cod) 
+            });
             document.getElementById("codigoInput").value = "";
             await carregarDados();
         };
 
         document.getElementById('btnShare').onclick = async () => {
-            const body = document.body;
             document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
-            const canvas = await html2canvas(body, { backgroundColor: '#070709', scale: 2 });
+            const canvas = await html2canvas(document.body, { backgroundColor: '#070709', scale: 2 });
             canvas.toBlob(async (blob) => {
                 const imgURL = canvas.toDataURL("image/png");
                 const link = document.createElement("a");
-                link.download = `compendio.png`;
+                link.download = `compendio-${usuarioAtual.displayName || 'taverna'}.png`;
                 link.href = imgURL;
                 link.click();
                 try {
                     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-                    alert("Copiado! Use Ctrl+V no WhatsApp.");
-                } catch { alert("Salvo nos downloads!"); }
+                    alert("Copiado! Agora é só colar (Ctrl+V) no WhatsApp.");
+                } catch { alert("Compêndio salvo nos downloads!"); }
                 document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
             });
         };
