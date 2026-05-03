@@ -166,7 +166,7 @@
             <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
             <p class="hide-on-print">Invoque as cartas dos deuses.</p>
             <div class="input-group hide-on-print">
-                <input type="text" id="codigoInput" placeholder="CÓDIGO">
+                <input type="text" id="codigoInput" placeholder="CÓDIGO" maxlength="25">
                 <button id="btnResgatar">Invocar</button>
             </div>
             <button id="btnShare" class="btn-share hide-on-print">📸 Copiar Compêndio</button>
@@ -203,15 +203,12 @@
         // --- AUTOMAÇÃO DE CARTAS ---
         const NOMES_DOS_DEUSES = ["amaterasu", "susanoo", "tsukuyomi", "quetzalcoatl", "huitzilopochtli", "tezcatlipoca","ra", "isis", "set", "zeus", "hades", "poseidon", "demeter", "freyr", "odin", "thor", "loki", "shennong", "fuxi", "nuwa"];
         
-        // O sistema agora calcula os slots automaticamente com base na sua lista!
         const TOTAL_SLOTS = NOMES_DOS_DEUSES.length;
         
         const cartasDisponiveis = NOMES_DOS_DEUSES.map((nome, index) => ({
             id: index + 1,
             imagem: `card_${nome}.jpeg` 
         }));
-
-        const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
         // Modal Logic
         const modal = document.getElementById('card-modal');
@@ -305,20 +302,53 @@
             }
         }
 
+        // --- SISTEMA DE RESGATE VIA FIRESTORE (COM TEMPO DE EXPIRAÇÃO) ---
         document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
-            if (!codigosValidos.includes(cod)) return alert("Código inválido.");
+            if (!cod) return alert("Mestre, os deuses exigem um código válido!");
+
+            // 1. Busca o código no Firestore
+            const codigoRef = doc(db, "codigos", cod);
+            const codigoSnap = await getDoc(codigoRef);
+
+            // 2. Verifica se existe e se está ativo
+            if (!codigoSnap.exists() || codigoSnap.data().ativo === false) {
+                return alert("Código inválido ou selado pelos deuses.");
+            }
+
+            const dadosCodigo = codigoSnap.data();
+
+            // 3. Verifica se o código tem data de validade e se já passou
+            if (dadosCodigo.expira_em) {
+                const dataExpiracao = dadosCodigo.expira_em.toDate();
+                const agora = new Date();
+                
+                if (agora > dataExpiracao) {
+                    return alert("A magia deste código já se dissipou no tempo! (Expirado)");
+                }
+            }
+
+            // 4. Validações do Jogador
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
-            if (d.codigos_usados?.includes(cod)) return alert("Código já utilizado.");
-            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu álbum está completo!");
+            
+            if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
+            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu compêndio já está completo!");
+
+            // 5. Sorteio de Cartas
             let sorteio = [];
             for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
                 const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
                 sorteio.push(cartasDisponiveis[indexSorteado].id);
             }
-            await updateDoc(userRef, { cartas_desbloqueadas: arrayUnion(...sorteio), codigos_usados: arrayUnion(cod) });
+
+            // 6. Salva no banco de dados
+            await updateDoc(userRef, { 
+                cartas_desbloqueadas: arrayUnion(...sorteio), 
+                codigos_usados: arrayUnion(cod) 
+            });
+            
             document.getElementById("codigoInput").value = "";
             await carregarDados();
         };
