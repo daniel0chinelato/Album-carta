@@ -200,7 +200,7 @@
 
         let usuarioAtual = null;
 
-        // --- AUTOMAÇÃO DE CARTAS ---
+        // --- LISTA DE DEUSES ---
         const NOMES_DOS_DEUSES = ["amaterasu", "susanoo", "tsukuyomi", "quetzalcoatl", "huitzilopochtli", "tezcatlipoca","ra", "isis", "set", "zeus", "hades", "poseidon", "demeter", "freyr", "odin", "thor", "loki", "shennong", "fuxi", "nuwa"];
         
         const TOTAL_SLOTS = NOMES_DOS_DEUSES.length;
@@ -210,7 +210,7 @@
             imagem: `card_${nome}.jpeg` 
         }));
 
-        // Modal Logic
+        // Lógica do Modal (Popup)
         const modal = document.getElementById('card-modal');
         const modalImg = document.getElementById('modal-img');
         modal.onclick = () => modal.style.display = 'none';
@@ -220,7 +220,7 @@
             modal.style.display = 'flex';
         }
 
-        // Auth Tabs
+        // Abas de Autenticação
         document.getElementById('tabLogin').onclick = () => {
             document.getElementById('formLogin').classList.add('active');
             document.getElementById('formSignup').classList.remove('active');
@@ -302,23 +302,22 @@
             }
         }
 
-        // --- SISTEMA DE RESGATE VIA FIRESTORE (COM TEMPO DE EXPIRAÇÃO) ---
+        // --- NOVO SISTEMA DE RESGATE DE CÓDIGOS ---
         document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
-            if (!cod) return alert("Mestre, os deuses exigem um código válido!");
+            if (!cod) return alert("Mestre, insira um código válido.");
 
-            // 1. Busca o código no Firestore
+            // 1. Consulta o código no Firestore
             const codigoRef = doc(db, "codigos", cod);
             const codigoSnap = await getDoc(codigoRef);
 
-            // 2. Verifica se existe e se está ativo
             if (!codigoSnap.exists() || codigoSnap.data().ativo === false) {
-                return alert("Código inválido ou selado pelos deuses.");
+                return alert("Código inválido, expirado ou selado pelos deuses.");
             }
 
             const dadosCodigo = codigoSnap.data();
 
-            // 3. Verifica se o código tem data de validade e se já passou
+            // 2. Validação de tempo (expira_em)
             if (dadosCodigo.expira_em) {
                 const dataExpiracao = dadosCodigo.expira_em.toDate();
                 const agora = new Date();
@@ -328,31 +327,46 @@
                 }
             }
 
-            // 4. Validações do Jogador
+            // 3. Validações do Jogador
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
             
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
-            if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu compêndio já está completo!");
 
-            // 5. Sorteio de Cartas
-            let sorteio = [];
-            for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
-                const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
-                sorteio.push(cartasDisponiveis[indexSorteado].id);
+            // 4. Lógica de Cartas a Receber
+            let cartasParaAdicionar = [];
+
+            // Se o código tiver o array "cartas_recompensa" configurado no Firestore
+            if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
+                cartasParaAdicionar = dadosCodigo.cartas_recompensa;
+            } else {
+                // Se não tiver recompensa específica configurada, faz o sorteio de 3 cartas
+                if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu compêndio já está completo!");
+                for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
+                    const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
+                    cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
+                }
             }
 
-            // 6. Salva no banco de dados
+            // 5. Salva as cartas e o código usado no banco de dados do jogador
             await updateDoc(userRef, { 
-                cartas_desbloqueadas: arrayUnion(...sorteio), 
+                cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), 
                 codigos_usados: arrayUnion(cod) 
             });
             
             document.getElementById("codigoInput").value = "";
             await carregarDados();
+
+            // Mensagem de sucesso variando pelo tipo de drop
+            if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
+                alert(`Invocação Épica! Você recebeu ${cartasParaAdicionar.length} carta(s) especial(is).`);
+            } else {
+                alert("Invocação bem-sucedida! Cartas adicionadas ao seu compêndio.");
+            }
         };
 
+        // Função de captura de tela
         document.getElementById('btnShare').onclick = async () => {
             document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
             const canvas = await html2canvas(document.body, { backgroundColor: '#070709', scale: 2 });
@@ -364,7 +378,7 @@
                 link.click();
                 try {
                     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-                    alert("Copiado! Use Ctrl+V no WhatsApp.");
+                    alert("Copiado! Cole diretamente no WhatsApp (Ctrl+V).");
                 } catch { alert("Salvo nos downloads!"); }
                 document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
             });
