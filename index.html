@@ -19,7 +19,7 @@
             --gold-dim: #8a7322;
             --gold-glow: rgba(212, 175, 55, 0.15);
             --text-light: #d1d1d1;
-            --border-radius: 2px; /* Cantos mais retos e agressivos */
+            --border-radius: 2px;
             --font-epic: 'Cinzel', serif;
             --font-body: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -94,14 +94,14 @@
             position: absolute; 
             top: -50px; 
             left: 50%; 
-            transform: translateX(-50%) rotate(45deg); /* Transformado em um losango */
+            transform: translateX(-50%) rotate(45deg);
             box-shadow: 0 0 20px var(--gold-glow); 
         }
         
         .hero-seal::after { 
             content: "⚔️"; 
             font-size: 2rem; 
-            transform: rotate(-45deg); /* Desfaz a rotação para o ícone ficar reto */
+            transform: rotate(-45deg);
         }
 
         h1 { 
@@ -115,7 +115,6 @@
         
         p { color: #555; margin-bottom: 2.5rem; font-size: 0.95rem; }
 
-        /* --- BOTÕES E INPUTS (Estilo Ghost/Premium) --- */
         input { 
             background-color: #030304; 
             border: 1px solid #333; 
@@ -152,7 +151,6 @@
             box-shadow: 0 0 20px var(--gold-glow); 
         }
 
-        /* Variações de Botões */
         .btn-google { border-color: #555; color: #ccc; display: flex; align-items: center; gap: 12px; margin: 0 auto; }
         .btn-google:hover { background-color: #fff; color: #000; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
         
@@ -162,7 +160,6 @@
         .btn-logout { border-color: #333; color: #666; font-size: 0.8rem; padding: 8px 20px; margin-top: 3rem; }
         .btn-logout:hover { background-color: #ff3333; color: #fff; border-color: #ff3333; box-shadow: 0 0 15px rgba(255, 51, 51, 0.3); }
 
-        /* --- GRID E CARTAS --- */
         .album-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
@@ -174,7 +171,7 @@
         
         .card { 
             width: 160px; 
-            height: 224px; /* Proporção clássica de TCG (2.5x3.5) */
+            height: 224px; 
             background-color: #050505; 
             border: 1px dashed #222; 
             display: flex; 
@@ -204,7 +201,7 @@
             width: 100%; 
             text-align: center; 
             font-size: 0.65rem; 
-            color: rgba(212, 175, 55, 0.5); /* Marca d'água agora é dourada sutil */
+            color: rgba(212, 175, 55, 0.5); 
             background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
             padding: 10px 0 5px; 
             display: none; 
@@ -255,10 +252,10 @@
         </div>
     </div>
 
-    <!-- O SCRIPT DO FIREBASE CONTINUA INTACTO AQUI -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+        // Atenção aqui: voltamos para signInWithPopup
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -287,8 +284,7 @@
             { id: 6, imagem: "https://via.placeholder.com/160x224/111111/d4af37?text=Player+Elite" }
         ];
 
-        const codigosValidos = ["TAVERNA-LIVE","EPICO2026","BRIGA-BAR","TESTE PAIN"];
-    
+        const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
         function iniciarAlbumHTML() {
             const grid = document.getElementById('albumGrid');
@@ -305,10 +301,11 @@
         }
         iniciarAlbumHTML();
 
+        // Botão de login usando Popup
         document.getElementById('btnGoogleLogin').addEventListener('click', () => {
-            signInWithRedirect(auth, provider).catch(error => {
+            signInWithPopup(auth, provider).catch(error => {
                 console.error("Erro no login:", error);
-                alert("Falha ao redirecionar para a janela do Google.");
+                alert("Falha ao abrir a janela do Google. Tente desativar bloqueadores de pop-up.");
             });
         });
 
