@@ -175,7 +175,6 @@
         </div>
     </div>
 
-    <!-- Estrutura do Modal -->
     <div id="card-modal" class="hide-on-print">
         <img id="modal-img" src="" alt="Carta Expandida">
     </div>
@@ -201,14 +200,15 @@
 
         let usuarioAtual = null;
         const TOTAL_SLOTS = 10;
-        const cartasDisponiveis = [
-            { id: 1, imagem: "ra_teste.jpeg" },
-            { id: 2, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Alfheim" },
-            { id: 3, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Odin" },
-            { id: 4, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Zeus" },
-            { id: 5, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Isis" },
-            { id: 6, imagem: "https://via.placeholder.com/167x224/111/d4af37?text=Elite" }
-        ];
+
+        // --- AUTOMAÇÃO DE CARTAS ---
+        // Basta adicionar o nome do deus aqui. O código buscará "card_NOME.png"
+        const NOMES_DOS_DEUSES = ["ra", "isis", "seth", "zeus", "hades", "poseidon", "odin", "thor", "loki"];
+        
+        const cartasDisponiveis = NOMES_DOS_DEUSES.map((nome, index) => ({
+            id: index + 1,
+            imagem: `card_${nome}.png` // O padrão que você escolheu
+        }));
 
         const codigosValidos = ["TAVERNA-LIVE", "EPICO2026", "BRIGA-BAR"];
 
@@ -314,7 +314,9 @@
             if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu álbum está completo!");
             let sorteio = [];
             for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
-                sorteio.push(cartasDisponiveis[Math.floor(Math.random() * cartasDisponiveis.length)].id);
+                // Sorteia baseando-se na lista atualizada de deuses
+                const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
+                sorteio.push(cartasDisponiveis[indexSorteado].id);
             }
             await updateDoc(userRef, { cartas_desbloqueadas: arrayUnion(...sorteio), codigos_usados: arrayUnion(cod) });
             document.getElementById("codigoInput").value = "";
