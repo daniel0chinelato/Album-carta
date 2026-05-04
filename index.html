@@ -150,7 +150,7 @@
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- ANIMAÇÃO POLIDA DO PACOTE E REVELAÇÃO 3D --- */
+        /* --- ANIMAÇÃO 3D DO PACOTE --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -158,10 +158,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* 
-           A escala foi atualizada para 1.45.
-           Isso mantém o pacote grandioso na tela de forma travada.
-        */
         .pack-floater {
             position: relative;
             animation: float-pack 3s ease-in-out infinite;
@@ -190,11 +186,10 @@
         }
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
-        
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
         
-        /* Estrutura 3D das Cartas Reveladas (Tamanho travado em 1.45) */
+        /* Estrutura 3D */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
             left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45);
@@ -215,6 +210,16 @@
             box-shadow: 0 0 60px rgba(212,175,55,0.8);
         }
 
+        /* --- AURA MÍTICA PARA A CARTA ESPECIAL --- */
+        .anim-card-inner.flip.mythic-glow {
+            animation: mythic-pulse 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes mythic-pulse {
+            0% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 69, 0, 0.6); }
+            100% { box-shadow: 0 0 100px rgba(255, 255, 255, 1), 0 0 150px rgba(255, 215, 0, 1), 0 0 220px rgba(255, 69, 0, 0.8); }
+        }
+
         .anim-card-face {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             backface-visibility: hidden; 
@@ -226,19 +231,17 @@
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* BRILHO BRANCO (INTERNO) com as bordas arredondadas para não vazar */
+        /* Brilho Branco Interno */
         .anim-card-front::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #ffffff; opacity: 1; z-index: 2;
-            border-radius: var(--card-radius); /* TRAVAMENTO DA LUZ NA BORDA */
+            background: #ffffff; opacity: 1; z-index: 2; border-radius: var(--card-radius); 
         }
 
         .anim-card-wrapper.reveal .anim-card-front::after {
-            opacity: 0;
-            transition: opacity 1.5s ease-out; 
+            opacity: 0; transition: opacity 1.5s ease-out; 
         }
 
-        /* AURA EXTERNA DO FLASH (Expandido para 300% para não criar corte/caixa quadrada) */
+        /* Aura Externa do Flash */
         .anim-card-wrapper::before {
             content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
@@ -247,20 +250,15 @@
         }
 
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
-        .anim-card-wrapper.flash-fade::before {
-            opacity: 0;
-            transition: opacity 1.5s ease-out; 
-        }
+        .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        
         @keyframes shake-pack {
             0%, 100% { transform: translateX(0) rotate(0); }
             25% { transform: translateX(-6px) rotate(-4deg); }
             75% { transform: translateX(6px) rotate(4deg); }
         }
-        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
@@ -292,7 +290,7 @@
         </div>
     </div>
 
-    <!-- Overlay da Animação do Pacote 3D -->
+    <!-- Overlay da Animação do Pacote -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
             <div id="pack-element" class="pack-base"></div>
@@ -473,7 +471,7 @@
             }
         }
 
-        // --- SISTEMA DE ANIMAÇÃO COM ESCALA 100% TRAVADA ---
+        // --- SISTEMA DE ANIMAÇÃO ---
         function executarAnimacao(itens) {
             return new Promise(resolve => {
                 const overlay = document.getElementById('summon-overlay');
@@ -489,7 +487,7 @@
 
                 pack.onclick = async () => {
                     pack.onclick = null;
-                    pack.classList.add('shaking'); // Treme mantendo o tamanho cravado
+                    pack.classList.add('shaking'); 
                     
                     await new Promise(r => setTimeout(r, 1000)); 
                     
@@ -500,7 +498,7 @@
                     pack.style.display = 'none';
 
                     const animCards = [];
-                    const baseScale = 1.45; // Escala constante (não dá mais zoom na hora de girar)
+                    const baseScale = 1.45; 
 
                     itens.forEach((item, index) => {
                         const wrapper = document.createElement('div');
@@ -528,7 +526,6 @@
 
                         setTimeout(() => {
                             const offset = (index - (itens.length - 1) / 2) * 200;
-                            // Salta no tamanho baseScale e fica ali
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.opacity = '1';
                         }, 100 * index);
@@ -536,27 +533,30 @@
 
                     await new Promise(r => setTimeout(r, 1000));
 
-                    // LÓGICA DE REVELAÇÃO ÉPICA
-                    animCards.forEach(({wrapper, inner}, index) => {
+                    // LÓGICA DE REVELAÇÃO
+                    animCards.forEach(({wrapper, inner, item}, index) => {
                         setTimeout(() => {
                             const offset = (index - (itens.length - 1) / 2) * 200;
                             
-                            // Apenas atualiza a sobreposição (z-index), sem mexer no tamanho
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
                             inner.classList.add('flip');
 
-                            // Pico do flash pouco antes de finalizar o giro
                             setTimeout(() => {
                                 wrapper.classList.add('flash-peak');
                             }, 1700);
 
-                            // Revela a carta
+                            // O momento de glória da revelação
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade'); 
-                                wrapper.classList.add('reveal');     
+                                wrapper.classList.add('reveal');
+                                
+                                // Se for a carta especial, acende a Aura Mítica!
+                                if (item.isSpecial) {
+                                    inner.classList.add('mythic-glow');
+                                }
                             }, 2000);
 
                         }, index * 1000);
@@ -565,7 +565,6 @@
                     const waitTime = 3800 + (animCards.length * 1000);
                     await new Promise(r => setTimeout(r, waitTime));
 
-                    // Voa para o álbum
                     animCards.forEach(({wrapper, item}) => {
                         let target = null;
                         if (item.isSpecial) {
