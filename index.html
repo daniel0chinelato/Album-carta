@@ -108,7 +108,6 @@
             width: var(--card-width); 
             height: var(--card-height); 
             background: transparent; 
-            border: 1px dashed rgba(255, 255, 255, 0.06); 
             border-radius: var(--card-radius);
             position: relative; 
             overflow: hidden; 
@@ -117,17 +116,20 @@
             justify-content: center; 
             cursor: default;
             transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
         
         .card.revealed { 
-            border: none; 
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
         }
 
         .card.revealed:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
-        .card img { width: 100%; height: 100%; object-fit: cover; display: none; pointer-events: none; border-radius: var(--card-radius); }
-        .card.revealed img { display: block; }
+        
+        .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; }
+        
+        /* Efeito no verso da carta: mais escuro para as reveladas ganharem destaque */
+        .card:not(.revealed) img { opacity: 0.5; filter: grayscale(20%); }
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
@@ -290,6 +292,7 @@
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
+        // --- SISTEMA DE RENDERIZAÇÃO ATUALIZADO ---
         function renderizarGrid(cartasIds) {
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
@@ -304,10 +307,12 @@
                 cardDiv.className = 'card' + (temEssaCarta ? ' revealed' : '');
                 
                 if (temEssaCarta && cartaDados) {
+                    // Carta destrancada: Mostra o deus!
                     cardDiv.innerHTML = `<img src="${cartaDados.imagem}" style="display:block">`;
                     cardDiv.onclick = () => openModal(cartaDados.imagem);
                 } else {
-                    cardDiv.innerHTML = ``;
+                    // Carta oculta: Puxa o card_verso.jpeg
+                    cardDiv.innerHTML = `<img src="card_verso.jpeg" style="display:block">`;
                 }
                 
                 grid.appendChild(cardDiv);
