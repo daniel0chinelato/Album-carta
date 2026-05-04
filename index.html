@@ -158,19 +158,21 @@
             backdrop-filter: blur(5px);
         }
 
-        /* Floater lida apenas com flutuação e o hover de escala leve */
+        /* 
+           A escala foi atualizada para 1.45.
+           Isso mantém o pacote grandioso na tela de forma travada.
+        */
         .pack-floater {
             position: relative;
             animation: float-pack 3s ease-in-out infinite;
-            transform: scale(1.35);
+            transform: scale(1.45);
             transition: transform 0.3s ease;
         }
 
         .pack-floater:hover {
-            transform: scale(1.4); 
+            transform: scale(1.50); 
         }
 
-        /* O pacote em si, travado em tamanho 100% fluído */
         .pack-base {
             width: var(--card-width); height: var(--card-height); 
             border-radius: var(--card-radius);
@@ -190,14 +192,12 @@
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
         
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        
-        /* Explosão do pacote SEM mudar o tamanho */
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
         
-        /* Estrutura 3D das Cartas Reveladas - Iniciando e mantendo a escala EXATA do pacote */
+        /* Estrutura 3D das Cartas Reveladas (Tamanho travado em 1.45) */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.35);
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45);
             perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out;
         }
@@ -226,10 +226,11 @@
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        /* BRILHO BRANCO */
+        /* BRILHO BRANCO (INTERNO) com as bordas arredondadas para não vazar */
         .anim-card-front::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #ffffff; opacity: 1; z-index: 2;
+            border-radius: var(--card-radius); /* TRAVAMENTO DA LUZ NA BORDA */
         }
 
         .anim-card-wrapper.reveal .anim-card-front::after {
@@ -237,10 +238,10 @@
             transition: opacity 1.5s ease-out; 
         }
 
-        /* AURA EXTERNA DO FLASH */
+        /* AURA EXTERNA DO FLASH (Expandido para 300% para não criar corte/caixa quadrada) */
         .anim-card-wrapper::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 70%);
+            content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
             opacity: 0; pointer-events: none; mix-blend-mode: screen; z-index: 10;
             transition: opacity 0.3s ease-in;
         }
@@ -251,10 +252,9 @@
             transition: opacity 1.5s ease-out; 
         }
 
-        @keyframes float-pack { 0%, 100% { transform: scale(1.35) translateY(0); } 50% { transform: scale(1.35) translateY(-10px); } }
+        @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
-        /* Tremor focado SOMENTE nos eixos, sem escalar */
         @keyframes shake-pack {
             0%, 100% { transform: translateX(0) rotate(0); }
             25% { transform: translateX(-6px) rotate(-4deg); }
@@ -489,7 +489,7 @@
 
                 pack.onclick = async () => {
                     pack.onclick = null;
-                    pack.classList.add('shaking'); // Treme mantendo o tamanho
+                    pack.classList.add('shaking'); // Treme mantendo o tamanho cravado
                     
                     await new Promise(r => setTimeout(r, 1000)); 
                     
@@ -500,7 +500,7 @@
                     pack.style.display = 'none';
 
                     const animCards = [];
-                    const baseScale = 1.35; // A escala é travada do início ao fim da revelação!
+                    const baseScale = 1.45; // Escala constante (não dá mais zoom na hora de girar)
 
                     itens.forEach((item, index) => {
                         const wrapper = document.createElement('div');
@@ -528,7 +528,7 @@
 
                         setTimeout(() => {
                             const offset = (index - (itens.length - 1) / 2) * 200;
-                            // Salta mantendo a escala travada em 1.35
+                            // Salta no tamanho baseScale e fica ali
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.opacity = '1';
                         }, 100 * index);
@@ -536,23 +536,23 @@
 
                     await new Promise(r => setTimeout(r, 1000));
 
-                    // LÓGICA DE REVELAÇÃO
+                    // LÓGICA DE REVELAÇÃO ÉPICA
                     animCards.forEach(({wrapper, inner}, index) => {
                         setTimeout(() => {
                             const offset = (index - (itens.length - 1) / 2) * 200;
                             
-                            // Reafirma a escala base para não ter nenhum pulo
+                            // Apenas atualiza a sobreposição (z-index), sem mexer no tamanho
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
                             inner.classList.add('flip');
 
-                            // Aos 1700ms do giro (segundos antes de parar de frente): Luz explode!
+                            // Pico do flash pouco antes de finalizar o giro
                             setTimeout(() => {
                                 wrapper.classList.add('flash-peak');
                             }, 1700);
 
-                            // Aos 2000ms: Apaga aura de fora e derrete a luz branca da frente revelando a arte
+                            // Revela a carta
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade'); 
@@ -565,7 +565,7 @@
                     const waitTime = 3800 + (animCards.length * 1000);
                     await new Promise(r => setTimeout(r, waitTime));
 
-                    // Voar para o álbum físico
+                    // Voa para o álbum
                     animCards.forEach(({wrapper, item}) => {
                         let target = null;
                         if (item.isSpecial) {
@@ -583,7 +583,6 @@
                             const rect = target.getBoundingClientRect();
                             wrapper.style.left = `${rect.left}px`;
                             wrapper.style.top = `${rect.top}px`;
-                            // Único momento em que a escala diminui, para encaixar 100% no grid real
                             wrapper.style.transform = `translate(0px, 0px) scale(1)`; 
                             wrapper.style.opacity = '0'; 
                         }
