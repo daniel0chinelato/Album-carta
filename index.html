@@ -127,9 +127,6 @@
         .card.revealed:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
         
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; }
-        
-        /* Efeito no verso da carta: mais escuro para as reveladas ganharem destaque */
-        .card:not(.revealed) img { opacity: 0.5; filter: grayscale(20%); }
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
@@ -311,7 +308,7 @@
                     cardDiv.innerHTML = `<img src="${cartaDados.imagem}" style="display:block">`;
                     cardDiv.onclick = () => openModal(cartaDados.imagem);
                 } else {
-                    // Carta oculta: Puxa o card_verso.jpeg
+                    // Carta oculta: Puxa o card_verso.jpeg com 100% de cor e opacidade!
                     cardDiv.innerHTML = `<img src="card_verso.jpeg" style="display:block">`;
                 }
                 
