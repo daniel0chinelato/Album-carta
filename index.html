@@ -157,7 +157,7 @@
             opacity: 0.9;
         }
 
-        /* O Brilho de Fundo Suave (Pra não ficar um traço seco) */
+        /* O Brilho de Fundo Suave */
         .special-card::after {
             content: '';
             position: absolute;
@@ -166,7 +166,7 @@
             background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #1e90ff, #9c88ff, #ff4757);
             background-size: 300% 100%;
             z-index: -2;
-            filter: blur(12px); /* Desfoque contido que morre rápido */
+            filter: blur(12px); 
             opacity: 0.3;
             animation: flow-contour 2.5s linear infinite, pulse-contour 2s ease-in-out infinite alternate;
         }
@@ -255,7 +255,7 @@
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
-        /* Build-up Mítico (Luz Intensa) */
+        /* Build-up Mítico */
         .pack-base.shaking-epic { animation: build-up-tension-prismatic 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
         /* Estrutura 3D das Cartas Animadas */
@@ -275,13 +275,13 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
         
-        /* Contorno Prismático reduzido também no meio do ar */
+        /* Pulso Prismático durante o evento de revelação no ar */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal-prismatic 2s infinite alternate ease-in-out; }
         @keyframes mythic-pulse-reveal-prismatic {
-            0% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.6), 0 0 15px rgba(255, 165, 2, 0.4); }
-            33% { box-shadow: 0 0 8px rgba(46, 213, 115, 0.8), 0 0 15px rgba(30, 144, 255, 0.5); }
-            66% { box-shadow: 0 0 8px rgba(155, 89, 182, 0.7), 0 0 15px rgba(255, 71, 87, 0.5); }
-            100% { box-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 20px rgba(30, 144, 255, 0.8); }
+            0% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.6), 0 0 40px rgba(255, 165, 2, 0.4); }
+            33% { box-shadow: 0 0 40px rgba(46, 213, 115, 0.8), 0 0 60px rgba(30, 144, 255, 0.5); }
+            66% { box-shadow: 0 0 30px rgba(155, 89, 182, 0.7), 0 0 50px rgba(255, 71, 87, 0.5); }
+            100% { box-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 80px rgba(255, 165, 2, 0.8); }
         }
 
         .anim-card-face {
@@ -653,6 +653,51 @@
             
             await executarFluxoAnimacao(cartasParaAdicionar.map(id => ({id})), ganhouMítica ? {id: updateData.carta_especial} : null);
             await carregarDados();
+        };
+
+        // --- BOTÃO COMPARTILHAR ATUALIZADO ---
+        document.getElementById('btnShare').onclick = async () => {
+            const btn = document.getElementById('btnShare');
+            const textoOriginal = btn.innerText;
+            btn.innerText = "Gerando Imagem...";
+            btn.disabled = true;
+
+            try {
+                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
+                
+                const canvas = await html2canvas(document.body, { 
+                    backgroundColor: '#070709', 
+                    scale: 2,
+                    useCORS: true 
+                });
+                
+                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error("Falha na geração da imagem");
+
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                    alert("Compêndio copiado com sucesso! Cole diretamente no WhatsApp ou Discord (Ctrl+V).");
+                } catch (clipboardError) {
+                    const imgURL = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.download = `Compendio_Tavernas.png`;
+                    link.href = imgURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(imgURL);
+                    alert("Seu navegador bloqueou a cópia direta, mas o Compêndio foi salvo nos seus Downloads!");
+                }
+            } catch (error) {
+                console.error("Erro ao gerar compêndio:", error);
+                alert("Os deuses bloquearam a visão! Erro ao gerar a imagem.");
+                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
+            } finally {
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            }
         };
 
         document.getElementById('tabLogin').onclick = () => { document.getElementById('formLogin').classList.add('active'); document.getElementById('formSignup').classList.remove('active'); document.getElementById('tabLogin').classList.add('active'); document.getElementById('tabSignup').classList.remove('active'); };
