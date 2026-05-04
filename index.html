@@ -166,7 +166,7 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* ONDA DE CHOQUE EXPLOSIVA */
+        /* ONDA DE CHOQUE */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 40%, rgba(0,0,0,0) 70%);
@@ -185,7 +185,6 @@
             cursor: pointer; transition: filter 0.3s; position: relative;
         }
 
-        /* TEXTO DINÂMICO NO PACOTE */
         .pack-base::after {
             content: attr(data-text); 
             position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
@@ -195,14 +194,12 @@
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
         
-        /* Tremor Padrão (Cartas Normais) */
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
-        /* Tremor Épico / Build-up (Carta Especial) */
         .pack-base.shaking-epic { animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
-        /* Estrutura 3D das Cartas Animadas */
+        /* Estrutura 3D */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
             left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0);
@@ -219,7 +216,6 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
 
-        /* Aura Mítica (Para Lendária) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse 1.5s infinite alternate ease-in-out; }
 
         @keyframes mythic-pulse {
@@ -253,7 +249,6 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES */
         @keyframes epic-shockwave {
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
             40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); }
@@ -445,8 +440,9 @@
                 let cartasSalvas = dados.cartas_desbloqueadas || [];
                 let cartaEspecial = dados.carta_especial;
 
-                // GARANTIA: Se não tem o álbum completo, a carta especial não pode existir.
-                if (cartasSalvas.length < TOTAL_SLOTS) {
+                const cartasUnicas = new Set(cartasSalvas.map(Number));
+                
+                if (cartasUnicas.size < TOTAL_SLOTS) {
                     cartaEspecial = null; 
                 }
 
@@ -499,14 +495,18 @@
                 const pack = document.getElementById('pack-element');
                 const floater = document.querySelector('.pack-floater');
                 
+                // Reseta tudo 100% antes de aparecer
                 pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
-                overlay.style.display = 'flex';
                 floater.classList.remove('explode-fx');
                 pack.classList.remove('shaking', 'shaking-epic', 'explode');
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
+                pack.style.pointerEvents = 'auto'; // GARANTE QUE PODE SER CLICADO
+                pack.style.transform = 'scale(1)'; 
+                pack.style.filter = 'none';
                 
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
+                overlay.style.display = 'flex';
 
                 pack.onclick = async () => {
                     pack.onclick = null;
@@ -547,7 +547,6 @@
                         
                         animCards.push({ wrapper, inner, item });
 
-                        // Ejeção com efeito mola
                         wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
                         wrapper.style.opacity = '1';
 
@@ -612,14 +611,18 @@
                 const pack = document.getElementById('pack-element');
                 const floater = document.querySelector('.pack-floater');
                 
+                // Reseta tudo 100% para o segundo round!
                 pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
-                overlay.style.display = 'flex';
                 floater.classList.remove('explode-fx');
                 pack.classList.remove('shaking', 'shaking-epic', 'explode');
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
-                
+                pack.style.pointerEvents = 'auto'; // GARANTE QUE PODE SER CLICADO DE NOVO
+                pack.style.transform = 'scale(1)';
+                pack.style.filter = 'none';
+
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
+                overlay.style.display = 'flex';
 
                 pack.onclick = async () => {
                     pack.onclick = null;
@@ -727,27 +730,42 @@
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
 
             let cartasParaAdicionar = [];
-            let allowsSpecialOnly = false;
+            
+            const arrayAtualConvertido = (d.cartas_desbloqueadas || []).map(Number);
+            let ganhouEspecial = false;
+
+            // --- LÓGICA DE SORTEIO INTELIGENTE ---
+            // Prioriza dar cartas que o jogador AINDA NÃO TEM, para garantir a chance de fechar o álbum!
+            let unownedCards = cartasDisponiveis.map(c => c.id).filter(id => !arrayAtualConvertido.includes(id));
 
             if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
                 cartasParaAdicionar = dadosCodigo.cartas_recompensa.map(id => Number(id));
             } else {
-                if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) {
+                if (arrayAtualConvertido.length >= TOTAL_SLOTS) {
                     if (!d.carta_especial) {
-                        allowsSpecialOnly = true;
+                        // Caso especial: Jogador já tem 23, mas ainda não ganhou a mítica.
+                        // O resgate servirá apenas para dar a carta especial.
+                        ganhouEspecial = true;
                     } else {
                         return alert("Seu compêndio já está completo!");
                     }
                 } else {
-                    for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
-                        const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
-                        cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
+                    const slotsDisponiveis = Math.min(3, TOTAL_SLOTS - arrayAtualConvertido.length);
+                    for (let i = 0; i < slotsDisponiveis; i++) {
+                        if (unownedCards.length > 0) {
+                            // Puxa das que faltam!
+                            const indexSorteado = Math.floor(Math.random() * unownedCards.length);
+                            cartasParaAdicionar.push(unownedCards[indexSorteado]);
+                            unownedCards.splice(indexSorteado, 1);
+                        } else {
+                            // Se acabou as não possuídas, puxa aleatório só pra fechar
+                            const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
+                            cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
+                        }
                     }
                 }
             }
 
-            const cartasAtuais = d.cartas_desbloqueadas || [];
-            const arrayAtualConvertido = cartasAtuais.map(Number);
             const arrayNovoConvertido = cartasParaAdicionar.map(Number);
             const todasAsCartas = new Set([...arrayAtualConvertido, ...arrayNovoConvertido]);
             
@@ -755,31 +773,33 @@
             if (cartasParaAdicionar.length > 0) updateData.cartas_desbloqueadas = arrayUnion(...cartasParaAdicionar);
             updateData.codigos_usados = arrayUnion(cod);
             
-            let ganhouEspecial = false;
-            
-            // O Jogador acabou de completar as 23 cartas ou está usando o resgate só pra pegar a mítica
+            // Verifica a glória máxima
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
                 updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
                 ganhouEspecial = true;
             }
 
+            // Salva os dados no banco
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
 
             let itensNormais = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
             
-            // 1. Roda a animação das cartas comuns (Se houverem)
+            // 1. Roda a animação das cartas comuns primeiro
             if (itensNormais.length > 0) {
                 await executarAnimacaoNormal(itensNormais);
             }
 
-            // 2. O Drop Lendário separado (Só vai acionar se não existia carta especial antes)
+            // 2. PAUSA DE SUSPENSE E EVENTO MÍTICO
             if (ganhouEspecial) {
-                if (itensNormais.length > 0) await new Promise(r => setTimeout(r, 800)); 
+                // Aguarda meio segundo no silêncio da taverna...
+                if (itensNormais.length > 0) await new Promise(r => setTimeout(r, 600)); 
+                
+                // BOOM! Começa o evento lendário.
                 await executarAnimacaoLendaria({ id: updateData.carta_especial, isSpecial: true });
             }
 
-            // Atualiza tudo visualmente no fundo da página!
+            // Atualiza o background final
             await carregarDados();
         };
 
