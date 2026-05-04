@@ -136,58 +136,57 @@
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
         .card:not(.revealed) img { opacity: 1; filter: none; }
 
-        /* --- AURA MÍTICA ÉPICA NO DECK --- */
+        /* --- AURA MÍTICA COMPACTADA NO DECK --- */
         .special-card {
             transform: scale(1.1);
-            border: 1px solid rgba(102, 178, 255, 0.5); /* Fio de luz na borda */
-            overflow: visible !important; /* Libera o vazamento da energia mágica */
+            border: 1px solid rgba(102, 178, 255, 0.4); 
+            overflow: visible !important; 
             z-index: 10; 
             animation: resting-mythic-shadow 2.5s infinite alternate ease-in-out;
         }
 
-        /* O Vórtice de Energia (Gira por trás da carta) */
+        /* Vórtice Cósmico Controlado */
         .special-card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            content: ''; position: absolute; top: -25%; left: -25%; width: 150%; height: 150%;
             background: conic-gradient(from 0deg, transparent 0%, var(--mythic-blue) 25%, transparent 50%, var(--mythic-blue-bright) 75%, transparent 100%);
             animation: spin-mythic-vortex 6s linear infinite;
-            z-index: -2; opacity: 0.5; border-radius: 50%; filter: blur(15px); pointer-events: none;
+            z-index: -2; opacity: 0.6; border-radius: 50%; filter: blur(8px); pointer-events: none;
         }
 
-        /* O Núcleo Pulsante (Brilho denso atrás da carta) */
+        /* Núcleo Pulsante Justo */
         .special-card::after {
-            content: ''; position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
+            content: ''; position: absolute; top: -5%; left: -5%; width: 110%; height: 110%;
             background: radial-gradient(circle, var(--mythic-blue-bright) 0%, var(--mythic-blue) 40%, transparent 70%);
-            z-index: -1; opacity: 0.4; animation: pulse-mythic-core 2s infinite alternate ease-in-out; pointer-events: none;
+            z-index: -1; opacity: 0.5; animation: pulse-mythic-core 2s infinite alternate ease-in-out; pointer-events: none;
         }
 
-        /* O Efeito de Hover (A Magia Reage) */
         .special-card:hover {
             transform: scale(1.15) translateY(-5px);
             border-color: #ffffff;
-            box-shadow: 0 0 50px var(--mythic-blue-bright), inset 0 0 20px #ffffff;
+            box-shadow: 0 0 35px var(--mythic-blue-bright), inset 0 0 15px #ffffff;
         }
 
         .special-card:hover::before {
-            animation: spin-mythic-vortex 2s linear infinite; /* Gira mais rápido e violento */
-            opacity: 0.9; filter: blur(20px);
+            animation: spin-mythic-vortex 2s linear infinite; 
+            opacity: 0.8; filter: blur(12px);
         }
 
         .special-card:hover::after {
-            opacity: 0.8; transform: scale(1.1);
+            opacity: 0.7; transform: scale(1.05);
         }
 
         @keyframes spin-mythic-vortex { 100% { transform: rotate(360deg); } }
-        @keyframes pulse-mythic-core { 0% { transform: scale(0.9); opacity: 0.3; } 100% { transform: scale(1.1); opacity: 0.6; } }
+        @keyframes pulse-mythic-core { 0% { transform: scale(0.95); opacity: 0.3; } 100% { transform: scale(1.05); opacity: 0.6; } }
         @keyframes resting-mythic-shadow {
-            0% { box-shadow: 0 0 15px var(--mythic-blue-glow), inset 0 0 10px var(--mythic-blue-glow); }
-            100% { box-shadow: 0 0 40px var(--mythic-blue), inset 0 0 20px var(--mythic-blue); }
+            0% { box-shadow: 0 0 10px var(--mythic-blue-glow), inset 0 0 5px var(--mythic-blue-glow); }
+            100% { box-shadow: 0 0 25px var(--mythic-blue), inset 0 0 10px var(--mythic-blue); }
         }
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END UNIFICADO --- */
+        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -204,7 +203,6 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* FX ONDA DE CHOQUE MÍTICA (AZUL) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, #ffffff 0%, var(--mythic-blue) 40%, rgba(0,0,0,0) 70%); 
@@ -234,8 +232,6 @@
         
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
-
-        /* Build-up Mítico (Azul) */
         .pack-base.shaking-epic { animation: build-up-tension-blue 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
         /* Estrutura 3D das Cartas Animadas */
@@ -254,8 +250,6 @@
         }
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
-
-        /* Aura Mítica Animada na Revelação (Azul) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal 1.5s infinite alternate ease-in-out; }
 
         @keyframes mythic-pulse-reveal {
@@ -269,13 +263,11 @@
         }
 
         .anim-card-back { background-size: cover; background-position: center; } 
-        
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .anim-card-front::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; opacity: 1; z-index: 2; border-radius: var(--card-radius); }
         .anim-card-wrapper.reveal .anim-card-front::after { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* Aura Externa Branca do Flash */
         .anim-card-wrapper::before {
             content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
@@ -285,7 +277,6 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES REFORMULADOS (AZUL) */
         @keyframes epic-shockwave-blue { 
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 
             40% { opacity: 1; box-shadow: 0 0 200px var(--mythic-blue-bright); } 
@@ -446,7 +437,6 @@
             const baseScale = 1.45;
 
             return new Promise(async resolve => {
-                // RESET DO PACOTE COMUM
                 overlay.style.display = 'flex';
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
@@ -475,7 +465,6 @@
                         const faceBack = document.createElement('div');
                         faceBack.className = 'anim-card-face anim-card-back';
                         
-                        /* APLICA VERSO NORMAL PARA COMUNS */
                         faceBack.style.backgroundImage = "url('card_verso.jpeg')"; 
 
                         const faceFront = document.createElement('div');
@@ -489,12 +478,10 @@
                         overlay.appendChild(wrapper);
                         animCards.push({ wrapper, inner });
 
-                        // Nasce sem pular escala, direto atrás do pacote
                         wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
                         wrapper.style.opacity = '0';
                         setTimeout(() => {
                             const offset = (index - (itensNormais.length - 1) / 2) * 220;
-                            // Desliza suavemente para os lados
                             wrapper.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.opacity = '1';
@@ -531,14 +518,12 @@
                     await new Promise(r => setTimeout(r, 1200));
                     document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
-                    // --- PARTE MÍTICA ---
                     if (itemEspecial) {
-                        await new Promise(r => setTimeout(r, 500)); // Suspense
+                        await new Promise(r => setTimeout(r, 500)); 
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
                         
-                        /* APLICA VERSO MÍTICO E TEXTO MÍTICO */
                         pack.style.backgroundImage = "url('verso_mitico.jpeg')";
                         pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO AZUL.');
                         
@@ -559,7 +544,6 @@
                             inner.className = 'anim-card-inner';
                             const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
                             
-                            /* APLICA VERSO MÍTICO PARA LENDÁRIA */
                             fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
 
                             const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
@@ -578,7 +562,7 @@
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade', 'reveal');
-                                inner.classList.add('mythic-glow'); // Liga a aura mítica na animação
+                                inner.classList.add('mythic-glow');
                             }, 2000);
 
                             await new Promise(r => setTimeout(r, 5000));
