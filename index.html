@@ -150,7 +150,7 @@
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- ANIMAÇÃO DE LIBERAÇÃO ÉPICA --- */
+        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -166,7 +166,7 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* ONDA DE CHOQUE EXPLOSIVA */
+        /* ONDA DE CHOQUE (Apenas para o Lendário) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 40%, rgba(0,0,0,0) 70%);
@@ -184,30 +184,33 @@
             border-radius: var(--card-radius);
             background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
-            cursor: pointer; 
-            transition: filter 0.3s;
-            position: relative;
+            cursor: pointer; transition: filter 0.3s; position: relative;
         }
 
+        /* TEXTO DINÂMICO NO PACOTE */
         .pack-base::after {
-            content: "CLIQUE PARA REVELAR A CARTA"; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            content: attr(data-text); 
+            position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
             color: var(--gold); font-family: var(--font-epic); font-size: 0.75rem; letter-spacing: 2px; white-space: nowrap;
             animation: pulse-text 1.5s infinite;
         }
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
         
-        /* BUILD-UP (Tensão aumentando até o limite) */
-        .pack-base.shaking { 
+        /* Tremor Padrão (Cartas Normais) */
+        .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
+        .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
+
+        /* Tremor Épico / Build-up (Carta Especial) */
+        .pack-base.shaking-epic { 
             animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
         }
         
-        /* Estrutura 3D */
+        /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0); /* Nascem no meio e invisíveis */
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45);
             perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
-            /* A transição inicial será trocada via JS para ter efeito mola */
         }
 
         .anim-card-inner {
@@ -218,12 +221,9 @@
             box-shadow: 0 0 20px rgba(212,175,55,0.4);
         }
 
-        .anim-card-inner.flip {
-            transform: rotateY(1620deg);
-            box-shadow: 0 0 60px rgba(212,175,55,0.8);
-        }
+        .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
 
-        /* Aura Mítica */
+        /* Aura Mítica (Para Lendária) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse 1.5s infinite alternate ease-in-out; }
 
         @keyframes mythic-pulse {
@@ -233,9 +233,7 @@
 
         .anim-card-face {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            backface-visibility: hidden; 
-            border-radius: var(--card-radius);
-            overflow: hidden;
+            backface-visibility: hidden; border-radius: var(--card-radius); overflow: hidden;
         }
 
         .anim-card-back { background: url('card_verso.jpeg') center/cover; }
@@ -259,7 +257,7 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES REFORMULADOS */
+        /* KEYFRAMES */
         @keyframes epic-shockwave {
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
             40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); }
@@ -282,6 +280,11 @@
 
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @keyframes shake-pack {
+            0%, 100% { transform: translateX(0) rotate(0); }
+            25% { transform: translateX(-6px) rotate(-4deg); }
+            75% { transform: translateX(6px) rotate(4deg); }
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
@@ -316,7 +319,7 @@
     <!-- Overlay da Animação -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
-            <div id="pack-element" class="pack-base"></div>
+            <div id="pack-element" class="pack-base" data-text="CLIQUE PARA REVELAR A CARTA"></div>
         </div>
     </div>
 
@@ -448,9 +451,11 @@
 
                 const cartasUnicas = new Set(cartasSalvas.map(Number));
                 
+                // Trava de exibição: Some com a carta se não estiver com o álbum cheio
                 if (cartasUnicas.size < TOTAL_SLOTS) {
                     cartaEspecial = null; 
                 } else if (cartasUnicas.size >= TOTAL_SLOTS && !cartaEspecial) {
+                    // Correção retroativa silenciosa
                     cartaEspecial = Math.floor(Math.random() * 4) + 1;
                     await updateDoc(userRef, { carta_especial: cartaEspecial });
                 }
@@ -497,33 +502,33 @@
             }
         }
 
-        // --- SISTEMA DE ANIMAÇÃO: EJEÇÃO EXPLOSIVA ---
-        function executarAnimacao(itens) {
+        // --- ANIMAÇÃO PARTE 1: CARTAS COMUNS ---
+        function executarAnimacaoNormal(itens) {
             return new Promise(resolve => {
                 const overlay = document.getElementById('summon-overlay');
                 const pack = document.getElementById('pack-element');
                 const floater = document.querySelector('.pack-floater');
                 
+                pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
                 overlay.style.display = 'flex';
                 floater.classList.remove('explode-fx');
-                pack.classList.remove('shaking');
+                pack.classList.remove('shaking', 'shaking-epic', 'explode');
                 pack.style.display = 'block';
+                pack.style.opacity = '1';
                 
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
                     pack.onclick = null;
                     
-                    // 1. Tensão Máxima
-                    pack.classList.add('shaking'); 
-                    await new Promise(r => setTimeout(r, 1500)); 
+                    pack.classList.add('shaking'); // Tremor normal
+                    await new Promise(r => setTimeout(r, 1000)); 
                     
-                    // 2. A ONDA DE CHOQUE ÉPICA
                     pack.classList.remove('shaking');
-                    pack.style.display = 'none'; // Esconde o pacote
-                    floater.classList.add('explode-fx'); // Dispara o anel de luz
+                    pack.classList.add('explode'); // Explosão normal
                     
-                    await new Promise(r => setTimeout(r, 100)); // Ponto de impacto
+                    await new Promise(r => setTimeout(r, 400));
+                    pack.style.display = 'none';
 
                     const animCards = [];
                     const baseScale = 1.45; 
@@ -542,7 +547,7 @@
                         faceFront.className = 'anim-card-face anim-card-front';
                         
                         const img = document.createElement('img');
-                        img.src = item.isSpecial ? `especial_${item.id}.jpeg` : cartasDisponiveis.find(c => c.id === item.id).imagem;
+                        img.src = cartasDisponiveis.find(c => c.id === item.id).imagem;
                         
                         faceFront.appendChild(img);
                         inner.appendChild(faceBack);
@@ -552,27 +557,20 @@
                         
                         animCards.push({ wrapper, inner, item });
 
-                        // 3. EJEÇÃO COM MOLA (SPRING EFFECT)
-                        // A carta nasce no centro, invisível e em tamanho ZERO
-                        wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
-                        wrapper.style.opacity = '1';
-
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 220;
-                            // Transição elástica: a carta é arremessada do pacote
-                            wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                            const offset = (index - (itens.length - 1) / 2) * 200;
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                        }, 50 * index); // Ejeção em cascata super rápida
+                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease';
+                            wrapper.style.opacity = '1';
+                        }, 100 * index);
                     });
 
-                    await new Promise(r => setTimeout(r, 1200));
+                    await new Promise(r => setTimeout(r, 1000));
 
-                    // LÓGICA DE REVELAÇÃO
-                    animCards.forEach(({wrapper, inner, item}, index) => {
+                    // REVELAÇÃO
+                    animCards.forEach(({wrapper, inner}, index) => {
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 220;
-                            
-                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
+                            const offset = (index - (itens.length - 1) / 2) * 200;
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
@@ -584,8 +582,6 @@
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade'); 
                                 wrapper.classList.add('reveal');
-                                
-                                if (item.isSpecial) inner.classList.add('mythic-glow');
                             }, 2000);
 
                         }, index * 1000);
@@ -594,27 +590,122 @@
                     const waitTime = 3800 + (animCards.length * 1000);
                     await new Promise(r => setTimeout(r, waitTime));
 
+                    // VOAR PARA O ALBUM
                     animCards.forEach(({wrapper, item}) => {
-                        let target = null;
-                        if (item.isSpecial) {
-                            target = document.getElementById('specialCardContainer');
-                            if(!target.querySelector('.card')) {
-                                target.style.width = 'var(--card-width)';
-                                target.style.height = 'var(--card-height)';
-                            }
-                        } else {
-                            const slots = document.querySelectorAll('.album-grid .card');
-                            target = slots[item.id - 1];
-                        }
+                        const slots = document.querySelectorAll('.album-grid .card');
+                        const target = slots[item.id - 1];
 
                         if (target) {
                             const rect = target.getBoundingClientRect();
+                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                             wrapper.style.left = `${rect.left}px`;
                             wrapper.style.top = `${rect.top}px`;
                             wrapper.style.transform = `translate(0px, 0px) scale(1)`; 
                             wrapper.style.opacity = '0'; 
                         }
                     });
+
+                    await new Promise(r => setTimeout(r, 1200));
+                    
+                    overlay.style.display = 'none';
+                    document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
+                    resolve();
+                };
+            });
+        }
+
+        // --- ANIMAÇÃO PARTE 2: O EVENTO LENDÁRIO ---
+        function executarAnimacaoLendaria(itemEspecial) {
+            return new Promise(resolve => {
+                const overlay = document.getElementById('summon-overlay');
+                const pack = document.getElementById('pack-element');
+                const floater = document.querySelector('.pack-floater');
+                
+                // Configura o pacote lendário
+                pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
+                overlay.style.display = 'flex';
+                floater.classList.remove('explode-fx');
+                pack.classList.remove('shaking', 'shaking-epic', 'explode');
+                pack.style.display = 'block';
+                pack.style.opacity = '1';
+                
+                document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
+
+                pack.onclick = async () => {
+                    pack.onclick = null;
+                    
+                    // 1. Tensão Máxima e Sobrecarga
+                    pack.classList.add('shaking-epic'); 
+                    await new Promise(r => setTimeout(r, 1500)); 
+                    
+                    // 2. A ONDA DE CHOQUE ÉPICA
+                    pack.classList.remove('shaking-epic');
+                    pack.style.display = 'none'; 
+                    floater.classList.add('explode-fx'); 
+                    
+                    await new Promise(r => setTimeout(r, 100)); // Ponto de impacto central
+
+                    const baseScale = 1.45; 
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'anim-card-wrapper';
+                    
+                    const inner = document.createElement('div');
+                    inner.className = 'anim-card-inner';
+                    
+                    const faceBack = document.createElement('div');
+                    faceBack.className = 'anim-card-face anim-card-back';
+                    
+                    const faceFront = document.createElement('div');
+                    faceFront.className = 'anim-card-face anim-card-front';
+                    
+                    const img = document.createElement('img');
+                    img.src = `especial_${itemEspecial.id}.jpeg`;
+                    
+                    faceFront.appendChild(img);
+                    inner.appendChild(faceBack);
+                    inner.appendChild(faceFront);
+                    wrapper.appendChild(inner);
+                    overlay.appendChild(wrapper);
+
+                    // 3. EJEÇÃO COM MOLA (SPRING EFFECT)
+                    wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
+                    wrapper.style.opacity = '1';
+
+                    setTimeout(() => {
+                        wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                        wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
+                    }, 50);
+
+                    await new Promise(r => setTimeout(r, 1200));
+
+                    // REVELAÇÃO ÉPICA
+                    wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
+                    inner.classList.add('flip');
+
+                    setTimeout(() => { wrapper.classList.add('flash-peak'); }, 1700);
+
+                    setTimeout(() => {
+                        wrapper.classList.remove('flash-peak');
+                        wrapper.classList.add('flash-fade'); 
+                        wrapper.classList.add('reveal');
+                        inner.classList.add('mythic-glow'); // Liga a aura mítica permanentemente!
+                    }, 2000);
+
+                    await new Promise(r => setTimeout(r, 4500)); // Tempo longo de glória
+
+                    // VOAR PARA O TOPO
+                    let target = document.getElementById('specialCardContainer');
+                    if(!target.querySelector('.card')) {
+                        target.style.width = 'var(--card-width)';
+                        target.style.height = 'var(--card-height)';
+                    }
+
+                    const rect = target.getBoundingClientRect();
+                    wrapper.style.left = `${rect.left}px`;
+                    wrapper.style.top = `${rect.top}px`;
+                    wrapper.style.transform = `translate(0px, 0px) scale(1)`; 
+                    wrapper.style.opacity = '0'; 
 
                     await new Promise(r => setTimeout(r, 1200));
                     
@@ -670,19 +761,33 @@
             let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
             let ganhouEspecial = false;
             
+            // Trava de Drop: O Jogador completou o álbum EXATAMENTE agora?
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
                 updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
                 ganhouEspecial = true;
             }
 
+            // Salva os dados no banco
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
 
-            let itensParaAnimar = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
-            if (ganhouEspecial) itensParaAnimar.push({ id: updateData.carta_especial, isSpecial: true });
+            // O GRANDE SHOW
+            // 1. Roda a animação das cartas comuns primeiro
+            let itensNormais = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
+            if (itensNormais.length > 0) {
+                await executarAnimacaoNormal(itensNormais);
+                // Atualiza visualmente o grid das cartas comuns
+                await carregarDados(); 
+            }
 
-            await executarAnimacao(itensParaAnimar);
-            await carregarDados();
+            // 2. O Drop Lendário separado!
+            if (ganhouEspecial) {
+                // Pausa dramática depois que as cartas normais pousaram...
+                await new Promise(r => setTimeout(r, 800)); 
+                await executarAnimacaoLendaria({ id: updateData.carta_especial, isSpecial: true });
+                // Atualiza visualmente a carta especial no topo
+                await carregarDados(); 
+            }
         };
 
         document.getElementById('btnShare').onclick = async () => {
