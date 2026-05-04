@@ -150,7 +150,7 @@
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- ANIMAÇÃO 3D DO PACOTE --- */
+        /* --- ANIMAÇÃO DE LIBERAÇÃO ÉPICA --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -164,8 +164,20 @@
             transform: scale(1.45);
             transition: transform 0.3s ease;
         }
-
         .pack-floater:hover { transform: scale(1.50); }
+
+        /* ONDA DE CHOQUE EXPLOSIVA */
+        .pack-floater::before {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 40%, rgba(0,0,0,0) 70%);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%; opacity: 0; pointer-events: none; z-index: 999;
+            mix-blend-mode: screen;
+        }
+
+        .pack-floater.explode-fx::before {
+            animation: epic-shockwave 1s ease-out forwards;
+        }
 
         .pack-base {
             width: var(--card-width); height: var(--card-height); 
@@ -184,15 +196,18 @@
         }
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
-        .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
+        
+        /* BUILD-UP (Tensão aumentando até o limite) */
+        .pack-base.shaking { 
+            animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+        }
         
         /* Estrutura 3D */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45);
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0); /* Nascem no meio e invisíveis */
             perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out;
+            /* A transição inicial será trocada via JS para ter efeito mola */
         }
 
         .anim-card-inner {
@@ -244,13 +259,29 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
+        /* KEYFRAMES REFORMULADOS */
+        @keyframes epic-shockwave {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); }
+            100% { transform: translate(-50%, -50%) scale(30); opacity: 0; }
+        }
+
+        @keyframes build-up-tension {
+            0% { transform: translateX(0) rotate(0) scale(1); filter: brightness(1); }
+            10% { transform: translateX(-4px) rotate(-2deg); filter: brightness(1.2); }
+            20% { transform: translateX(4px) rotate(2deg); filter: brightness(1.4); }
+            30% { transform: translateX(-6px) rotate(-3deg); filter: brightness(1.6); }
+            40% { transform: translateX(6px) rotate(3deg); filter: brightness(1.8); }
+            50% { transform: translateX(-8px) rotate(-5deg); filter: brightness(2); }
+            60% { transform: translateX(8px) rotate(5deg); filter: brightness(2.2); }
+            70% { transform: translateX(-10px) rotate(-6deg); filter: brightness(2.4); }
+            80% { transform: translateX(10px) rotate(6deg); filter: brightness(2.6); box-shadow: 0 0 100px #fff; }
+            90% { transform: translateX(-12px) rotate(-8deg); filter: brightness(2.8); box-shadow: 0 0 150px #fff; }
+            100% { transform: translateX(0) rotate(0); filter: brightness(3); box-shadow: 0 0 200px #fff; }
+        }
+
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        @keyframes shake-pack {
-            0%, 100% { transform: translateX(0) rotate(0); }
-            25% { transform: translateX(-6px) rotate(-4deg); }
-            75% { transform: translateX(6px) rotate(4deg); }
-        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
@@ -282,6 +313,7 @@
         </div>
     </div>
 
+    <!-- Overlay da Animação -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
             <div id="pack-element" class="pack-base"></div>
@@ -416,7 +448,6 @@
 
                 const cartasUnicas = new Set(cartasSalvas.map(Number));
                 
-                // SISTEMA DE LIMPEZA: Oculta a carta especial se o jogador não tiver as 23 cartas
                 if (cartasUnicas.size < TOTAL_SLOTS) {
                     cartaEspecial = null; 
                 } else if (cartasUnicas.size >= TOTAL_SLOTS && !cartaEspecial) {
@@ -466,31 +497,33 @@
             }
         }
 
-        // --- SISTEMA DE ANIMAÇÃO ---
+        // --- SISTEMA DE ANIMAÇÃO: EJEÇÃO EXPLOSIVA ---
         function executarAnimacao(itens) {
             return new Promise(resolve => {
                 const overlay = document.getElementById('summon-overlay');
                 const pack = document.getElementById('pack-element');
+                const floater = document.querySelector('.pack-floater');
                 
                 overlay.style.display = 'flex';
-                pack.classList.remove('explode', 'shaking');
-                pack.style.opacity = '1';
+                floater.classList.remove('explode-fx');
+                pack.classList.remove('shaking');
                 pack.style.display = 'block';
-                pack.style.filter = 'none';
                 
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
                     pack.onclick = null;
+                    
+                    // 1. Tensão Máxima
                     pack.classList.add('shaking'); 
+                    await new Promise(r => setTimeout(r, 1500)); 
                     
-                    await new Promise(r => setTimeout(r, 1000)); 
-                    
+                    // 2. A ONDA DE CHOQUE ÉPICA
                     pack.classList.remove('shaking');
-                    pack.classList.add('explode');
+                    pack.style.display = 'none'; // Esconde o pacote
+                    floater.classList.add('explode-fx'); // Dispara o anel de luz
                     
-                    await new Promise(r => setTimeout(r, 400));
-                    pack.style.display = 'none';
+                    await new Promise(r => setTimeout(r, 100)); // Ponto de impacto
 
                     const animCards = [];
                     const baseScale = 1.45; 
@@ -519,37 +552,40 @@
                         
                         animCards.push({ wrapper, inner, item });
 
+                        // 3. EJEÇÃO COM MOLA (SPRING EFFECT)
+                        // A carta nasce no centro, invisível e em tamanho ZERO
+                        wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
+                        wrapper.style.opacity = '1';
+
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 200;
+                            const offset = (index - (itens.length - 1) / 2) * 220;
+                            // Transição elástica: a carta é arremessada do pacote
+                            wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                            wrapper.style.opacity = '1';
-                        }, 100 * index);
+                        }, 50 * index); // Ejeção em cascata super rápida
                     });
 
-                    await new Promise(r => setTimeout(r, 1000));
+                    await new Promise(r => setTimeout(r, 1200));
 
                     // LÓGICA DE REVELAÇÃO
                     animCards.forEach(({wrapper, inner, item}, index) => {
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 200;
+                            const offset = (index - (itens.length - 1) / 2) * 220;
                             
+                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
                             inner.classList.add('flip');
 
-                            setTimeout(() => {
-                                wrapper.classList.add('flash-peak');
-                            }, 1700);
+                            setTimeout(() => { wrapper.classList.add('flash-peak'); }, 1700);
 
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade'); 
                                 wrapper.classList.add('reveal');
                                 
-                                if (item.isSpecial) {
-                                    inner.classList.add('mythic-glow');
-                                }
+                                if (item.isSpecial) inner.classList.add('mythic-glow');
                             }, 2000);
 
                         }, index * 1000);
@@ -634,8 +670,6 @@
             let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
             let ganhouEspecial = false;
             
-            // --- TRAVA DE DROP VOLTOU AQUI ---
-            // Sorteia a especial APENAS se estiver com o álbum cheio!
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
                 updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
                 ganhouEspecial = true;
