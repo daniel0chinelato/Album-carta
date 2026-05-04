@@ -632,19 +632,13 @@
                     cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
                 }
             }
-
-            const cartasAtuais = d.cartas_desbloqueadas || [];
-            const arrayAtualConvertido = cartasAtuais.map(Number);
-            const arrayNovoConvertido = cartasParaAdicionar.map(Number);
-            const todasAsCartas = new Set([...arrayAtualConvertido, ...arrayNovoConvertido]);
             
             let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
-            let ganhouEspecial = false;
             
-            if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
-                updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
-                ganhouEspecial = true;
-            }
+            // --- ATENÇÃO: LÓGICA ATUALIZADA ---
+            // A carta especial agora é lançada 100% das vezes junto com as outras
+            let ganhouEspecial = true;
+            updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
 
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
