@@ -21,6 +21,11 @@
             --card-width: 167px;
             --card-height: 224px;
             --card-radius: 6px;
+            
+            /* Cores Sóbrias do Drop Mítico */
+            --mythic-blue: #0077ff; 
+            --mythic-blue-glow: rgba(0, 119, 255, 0.5);
+            --mythic-blue-bright: #66b2ff; 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -255,7 +260,7 @@
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
-        /* Build-up Mítico */
+        /* Build-up Mítico (Luz Intensa) */
         .pack-base.shaking-epic { animation: build-up-tension-prismatic 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
         /* Estrutura 3D das Cartas Animadas */
@@ -278,10 +283,10 @@
         /* Pulso Prismático durante o evento de revelação no ar */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal-prismatic 2s infinite alternate ease-in-out; }
         @keyframes mythic-pulse-reveal-prismatic {
-            0% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.6), 0 0 40px rgba(255, 165, 2, 0.4); }
-            33% { box-shadow: 0 0 40px rgba(46, 213, 115, 0.8), 0 0 60px rgba(30, 144, 255, 0.5); }
-            66% { box-shadow: 0 0 30px rgba(155, 89, 182, 0.7), 0 0 50px rgba(255, 71, 87, 0.5); }
-            100% { box-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 80px rgba(255, 165, 2, 0.8); }
+            0% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.6), 0 0 15px rgba(255, 165, 2, 0.4); }
+            33% { box-shadow: 0 0 8px rgba(46, 213, 115, 0.8), 0 0 15px rgba(30, 144, 255, 0.5); }
+            66% { box-shadow: 0 0 8px rgba(155, 89, 182, 0.7), 0 0 15px rgba(255, 71, 87, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 20px rgba(30, 144, 255, 0.8); }
         }
 
         .anim-card-face {
@@ -655,7 +660,7 @@
             await carregarDados();
         };
 
-        // --- BOTÃO COMPARTILHAR ATUALIZADO ---
+        // --- BOTÃO COMPARTILHAR CORRIGIDO ---
         document.getElementById('btnShare').onclick = async () => {
             const btn = document.getElementById('btnShare');
             const textoOriginal = btn.innerText;
@@ -663,6 +668,7 @@
             btn.disabled = true;
 
             try {
+                // Esconde os controles da interface
                 document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
                 
                 const canvas = await html2canvas(document.body, { 
@@ -671,7 +677,15 @@
                     useCORS: true 
                 });
                 
-                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
+                // RESTAURAÇÃO CORRETA:
+                document.querySelectorAll('.hide-on-print').forEach(e => {
+                    // SE FOR O OVERLAY DE ANIMAÇÃO OU O MODAL, GARANTE QUE VOLTE INVISÍVEL
+                    if(e.id === 'summon-overlay' || e.id === 'card-modal') {
+                        e.style.display = 'none';
+                    } else {
+                        e.style.display = 'flex';
+                    }
+                });
 
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 if (!blob) throw new Error("Falha na geração da imagem");
@@ -693,7 +707,15 @@
             } catch (error) {
                 console.error("Erro ao gerar compêndio:", error);
                 alert("Os deuses bloquearam a visão! Erro ao gerar a imagem.");
-                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'flex');
+                
+                // Tratamento de erro também precisa restaurar corretamente
+                document.querySelectorAll('.hide-on-print').forEach(e => {
+                    if(e.id === 'summon-overlay' || e.id === 'card-modal') {
+                        e.style.display = 'none';
+                    } else {
+                        e.style.display = 'flex';
+                    }
+                });
             } finally {
                 btn.innerText = textoOriginal;
                 btn.disabled = false;
