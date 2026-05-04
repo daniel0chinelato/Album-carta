@@ -22,7 +22,7 @@
             --card-height: 224px;
             --card-radius: 6px;
             
-            /* Nova Cor do Drop Mítico */
+            /* Cores do Drop Mítico */
             --mythic-blue: #0077ff; 
             --mythic-blue-glow: rgba(0, 119, 255, 0.5);
             --mythic-blue-bright: #66b2ff; 
@@ -109,28 +109,6 @@
             min-height: var(--card-height);
         }
 
-        /* --- AURA DA CARTA MÍTICA NO DECK --- */
-        .special-card {
-            transform: scale(1.1);
-            border: none;
-            animation: resting-mythic-aura 2.5s infinite alternate ease-in-out;
-        }
-
-        .special-card:hover {
-            transform: scale(1.15) translateY(-5px);
-            animation: hover-mythic-aura 1s infinite alternate ease-in-out;
-        }
-
-        @keyframes resting-mythic-aura {
-            0% { box-shadow: 0 0 15px var(--mythic-blue-glow), 0 0 30px rgba(0, 50, 150, 0.3); }
-            100% { box-shadow: 0 0 35px var(--mythic-blue), 0 0 70px rgba(0, 119, 255, 0.6); }
-        }
-
-        @keyframes hover-mythic-aura {
-            0% { box-shadow: 0 0 35px var(--mythic-blue), 0 0 70px rgba(0, 119, 255, 0.6); }
-            100% { box-shadow: 0 0 60px var(--mythic-blue-bright), 0 0 100px var(--mythic-blue); }
-        }
-
         .album-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr)); 
@@ -154,10 +132,56 @@
         }
         
         .card.revealed { cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
-
         .card.revealed:not(.special-card):hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
         .card:not(.revealed) img { opacity: 1; filter: none; }
+
+        /* --- AURA MÍTICA ÉPICA NO DECK --- */
+        .special-card {
+            transform: scale(1.1);
+            border: 1px solid rgba(102, 178, 255, 0.5); /* Fio de luz na borda */
+            overflow: visible !important; /* Libera o vazamento da energia mágica */
+            z-index: 10; 
+            animation: resting-mythic-shadow 2.5s infinite alternate ease-in-out;
+        }
+
+        /* O Vórtice de Energia (Gira por trás da carta) */
+        .special-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 0%, var(--mythic-blue) 25%, transparent 50%, var(--mythic-blue-bright) 75%, transparent 100%);
+            animation: spin-mythic-vortex 6s linear infinite;
+            z-index: -2; opacity: 0.5; border-radius: 50%; filter: blur(15px); pointer-events: none;
+        }
+
+        /* O Núcleo Pulsante (Brilho denso atrás da carta) */
+        .special-card::after {
+            content: ''; position: absolute; top: -15%; left: -15%; width: 130%; height: 130%;
+            background: radial-gradient(circle, var(--mythic-blue-bright) 0%, var(--mythic-blue) 40%, transparent 70%);
+            z-index: -1; opacity: 0.4; animation: pulse-mythic-core 2s infinite alternate ease-in-out; pointer-events: none;
+        }
+
+        /* O Efeito de Hover (A Magia Reage) */
+        .special-card:hover {
+            transform: scale(1.15) translateY(-5px);
+            border-color: #ffffff;
+            box-shadow: 0 0 50px var(--mythic-blue-bright), inset 0 0 20px #ffffff;
+        }
+
+        .special-card:hover::before {
+            animation: spin-mythic-vortex 2s linear infinite; /* Gira mais rápido e violento */
+            opacity: 0.9; filter: blur(20px);
+        }
+
+        .special-card:hover::after {
+            opacity: 0.8; transform: scale(1.1);
+        }
+
+        @keyframes spin-mythic-vortex { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-mythic-core { 0% { transform: scale(0.9); opacity: 0.3; } 100% { transform: scale(1.1); opacity: 0.6; } }
+        @keyframes resting-mythic-shadow {
+            0% { box-shadow: 0 0 15px var(--mythic-blue-glow), inset 0 0 10px var(--mythic-blue-glow); }
+            100% { box-shadow: 0 0 40px var(--mythic-blue), inset 0 0 20px var(--mythic-blue); }
+        }
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
@@ -232,9 +256,9 @@
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
 
         /* Aura Mítica Animada na Revelação (Azul) */
-        .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-blue 1.5s infinite alternate ease-in-out; }
+        .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal 1.5s infinite alternate ease-in-out; }
 
-        @keyframes mythic-pulse-blue {
+        @keyframes mythic-pulse-reveal {
             0% { box-shadow: 0 0 40px var(--mythic-blue-glow), 0 0 80px rgba(0, 50, 150, 0.6); }
             100% { box-shadow: 0 0 100px #ffffff, 0 0 150px var(--mythic-blue), 0 0 220px rgba(0, 50, 150, 0.8); }
         }
@@ -427,9 +451,10 @@
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
                 pack.style.pointerEvents = 'auto';
-                pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
                 pack.style.backgroundImage = "url('card_verso.jpeg')";
+                pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
                 pack.classList.remove('explode', 'shaking', 'shaking-epic');
+                floater.classList.remove('explode-fx');
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
@@ -464,10 +489,12 @@
                         overlay.appendChild(wrapper);
                         animCards.push({ wrapper, inner });
 
+                        // Nasce sem pular escala, direto atrás do pacote
                         wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
                         wrapper.style.opacity = '0';
                         setTimeout(() => {
                             const offset = (index - (itensNormais.length - 1) / 2) * 220;
+                            // Desliza suavemente para os lados
                             wrapper.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.opacity = '1';
@@ -506,7 +533,7 @@
 
                     // --- PARTE MÍTICA ---
                     if (itemEspecial) {
-                        await new Promise(r => setTimeout(r, 500)); 
+                        await new Promise(r => setTimeout(r, 500)); // Suspense
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
@@ -551,7 +578,7 @@
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade', 'reveal');
-                                inner.classList.add('mythic-glow');
+                                inner.classList.add('mythic-glow'); // Liga a aura mítica na animação
                             }, 2000);
 
                             await new Promise(r => setTimeout(r, 5000));
