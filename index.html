@@ -97,6 +97,24 @@
         .btn-logout:hover { background: transparent; color: var(--gold); }
 
         /* --- GRID E CARTAS --- */
+        .special-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 3.5rem;
+        }
+
+        .special-card {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
+            border: 1px solid var(--gold);
+        }
+
+        .special-card:hover {
+            transform: scale(1.15) translateY(-5px);
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.8);
+        }
+
         .album-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr)); 
@@ -124,9 +142,12 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.8);
         }
 
-        .card.revealed:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
+        .card.revealed:not(.special-card):hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
         
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; }
+        
+        /* Efeito no verso da carta */
+        .card:not(.revealed) img { opacity: 1; filter: none; }
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
@@ -176,6 +197,9 @@
                 </div>
                 <button id="btnShare" class="btn-share">Copiar Compêndio</button>
             </div>
+
+            <!-- Contêiner da Carta Especial Mítica (Fica no Topo) -->
+            <div id="specialCardContainer" class="special-container"></div>
 
             <div class="album-grid" id="albumGrid"></div>
             
@@ -281,7 +305,8 @@
             if (snap.exists()) {
                 const dados = snap.data();
                 nomeParaExibir = dados.nome || nomeParaExibir;
-                renderizarGrid(dados.cartas_desbloqueadas || []);
+                // Agora envia também a carta especial, se o jogador já tiver ganhado
+                renderizarGrid(dados.cartas_desbloqueadas || [], dados.carta_especial);
             } else {
                 await setDoc(userRef, { nome: nomeParaExibir, email: usuarioAtual.email, cartas_desbloqueadas: [], codigos_usados: [] });
                 renderizarGrid([]);
@@ -289,8 +314,22 @@
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
-        // --- SISTEMA DE RENDERIZAÇÃO ATUALIZADO ---
-        function renderizarGrid(cartasIds) {
+        // --- SISTEMA DE RENDERIZAÇÃO ATUALIZADO (INCLUINDO A CARTA ESPECIAL) ---
+        function renderizarGrid(cartasIds, cartaEspecialId) {
+            
+            // 1. Renderiza a Carta Especial no Topo (se possuir)
+            const specialContainer = document.getElementById('specialCardContainer');
+            specialContainer.innerHTML = '';
+            if (cartaEspecialId) {
+                const specialImg = `especial_${cartaEspecialId}.jpeg`; // Puxa especial_1.jpeg, especial_2.jpeg...
+                const specialCardDiv = document.createElement('div');
+                specialCardDiv.className = 'card revealed special-card';
+                specialCardDiv.innerHTML = `<img src="${specialImg}" style="display:block">`;
+                specialCardDiv.onclick = () => openModal(specialImg);
+                specialContainer.appendChild(specialCardDiv);
+            }
+
+            // 2. Renderiza as cartas normais do Álbum
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
             
@@ -304,11 +343,9 @@
                 cardDiv.className = 'card' + (temEssaCarta ? ' revealed' : '');
                 
                 if (temEssaCarta && cartaDados) {
-                    // Carta destrancada: Mostra o deus!
                     cardDiv.innerHTML = `<img src="${cartaDados.imagem}" style="display:block">`;
                     cardDiv.onclick = () => openModal(cartaDados.imagem);
                 } else {
-                    // Carta oculta: Puxa o card_verso.jpeg com 100% de cor e opacidade!
                     cardDiv.innerHTML = `<img src="card_verso.jpeg" style="display:block">`;
                 }
                 
@@ -356,15 +393,35 @@
                 }
             }
 
-            await updateDoc(userRef, { 
+            // Descobre se o jogador vai completar o álbum exatemente AGORA com esse resgate
+            const cartasAtuais = d.cartas_desbloqueadas || [];
+            const todasAsCartas = new Set([...cartasAtuais, ...cartasParaAdicionar]);
+            
+            let updateData = { 
                 cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), 
                 codigos_usados: arrayUnion(cod) 
-            });
+            };
+
+            let ganhouEspecial = false;
+            
+            // Se ele conseguiu 23 cartas (TOTAL_SLOTS) e ainda não tem a carta especial gravada no Firebase...
+            if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
+                // Sorteia um número de 1 a 4
+                const idSorteado = Math.floor(Math.random() * 4) + 1;
+                updateData.carta_especial = idSorteado;
+                ganhouEspecial = true;
+            }
+
+            // Salva as atualizações
+            await updateDoc(userRef, updateData);
             
             document.getElementById("codigoInput").value = "";
             await carregarDados();
 
-            if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
+            // Mensagens de Sucesso
+            if (ganhouEspecial) {
+                alert("COMPÊNDIO COMPLETO! Os deuses o recompensaram com uma Carta Especial Mítica!");
+            } else if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
                 alert(`Invocação Épica! Você recebeu ${cartasParaAdicionar.length} carta(s) especial(is).`);
             } else {
                 alert("Invocação bem-sucedida! Cartas adicionadas ao seu compêndio.");
