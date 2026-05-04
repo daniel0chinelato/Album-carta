@@ -166,7 +166,7 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* ONDA DE CHOQUE (Apenas para o Lendário) */
+        /* ONDA DE CHOQUE EXPLOSIVA */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 40%, rgba(0,0,0,0) 70%);
@@ -175,9 +175,7 @@
             mix-blend-mode: screen;
         }
 
-        .pack-floater.explode-fx::before {
-            animation: epic-shockwave 1s ease-out forwards;
-        }
+        .pack-floater.explode-fx::before { animation: epic-shockwave 1s ease-out forwards; }
 
         .pack-base {
             width: var(--card-width); height: var(--card-height); 
@@ -202,14 +200,12 @@
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
         /* Tremor Épico / Build-up (Carta Especial) */
-        .pack-base.shaking-epic { 
-            animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
-        }
+        .pack-base.shaking-epic { animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
         /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45);
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0);
             perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
         }
 
@@ -449,15 +445,9 @@
                 let cartasSalvas = dados.cartas_desbloqueadas || [];
                 let cartaEspecial = dados.carta_especial;
 
-                const cartasUnicas = new Set(cartasSalvas.map(Number));
-                
-                // Trava de exibição: Some com a carta se não estiver com o álbum cheio
-                if (cartasUnicas.size < TOTAL_SLOTS) {
+                // GARANTIA: Se não tem o álbum completo, a carta especial não pode existir.
+                if (cartasSalvas.length < TOTAL_SLOTS) {
                     cartaEspecial = null; 
-                } else if (cartasUnicas.size >= TOTAL_SLOTS && !cartaEspecial) {
-                    // Correção retroativa silenciosa
-                    cartaEspecial = Math.floor(Math.random() * 4) + 1;
-                    await updateDoc(userRef, { carta_especial: cartaEspecial });
                 }
 
                 renderizarGrid(cartasSalvas, cartaEspecial);
@@ -521,11 +511,11 @@
                 pack.onclick = async () => {
                     pack.onclick = null;
                     
-                    pack.classList.add('shaking'); // Tremor normal
+                    pack.classList.add('shaking'); 
                     await new Promise(r => setTimeout(r, 1000)); 
                     
                     pack.classList.remove('shaking');
-                    pack.classList.add('explode'); // Explosão normal
+                    pack.classList.add('explode'); 
                     
                     await new Promise(r => setTimeout(r, 400));
                     pack.style.display = 'none';
@@ -557,20 +547,23 @@
                         
                         animCards.push({ wrapper, inner, item });
 
+                        // Ejeção com efeito mola
+                        wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
+                        wrapper.style.opacity = '1';
+
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 200;
+                            const offset = (index - (itens.length - 1) / 2) * 220;
+                            wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease';
-                            wrapper.style.opacity = '1';
-                        }, 100 * index);
+                        }, 50 * index);
                     });
 
-                    await new Promise(r => setTimeout(r, 1000));
+                    await new Promise(r => setTimeout(r, 1200));
 
-                    // REVELAÇÃO
                     animCards.forEach(({wrapper, inner}, index) => {
                         setTimeout(() => {
-                            const offset = (index - (itens.length - 1) / 2) * 200;
+                            const offset = (index - (itens.length - 1) / 2) * 220;
+                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
@@ -590,14 +583,12 @@
                     const waitTime = 3800 + (animCards.length * 1000);
                     await new Promise(r => setTimeout(r, waitTime));
 
-                    // VOAR PARA O ALBUM
                     animCards.forEach(({wrapper, item}) => {
                         const slots = document.querySelectorAll('.album-grid .card');
                         const target = slots[item.id - 1];
 
                         if (target) {
                             const rect = target.getBoundingClientRect();
-                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                             wrapper.style.left = `${rect.left}px`;
                             wrapper.style.top = `${rect.top}px`;
                             wrapper.style.transform = `translate(0px, 0px) scale(1)`; 
@@ -621,7 +612,6 @@
                 const pack = document.getElementById('pack-element');
                 const floater = document.querySelector('.pack-floater');
                 
-                // Configura o pacote lendário
                 pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
                 overlay.style.display = 'flex';
                 floater.classList.remove('explode-fx');
@@ -634,16 +624,14 @@
                 pack.onclick = async () => {
                     pack.onclick = null;
                     
-                    // 1. Tensão Máxima e Sobrecarga
                     pack.classList.add('shaking-epic'); 
                     await new Promise(r => setTimeout(r, 1500)); 
                     
-                    // 2. A ONDA DE CHOQUE ÉPICA
                     pack.classList.remove('shaking-epic');
                     pack.style.display = 'none'; 
                     floater.classList.add('explode-fx'); 
                     
-                    await new Promise(r => setTimeout(r, 100)); // Ponto de impacto central
+                    await new Promise(r => setTimeout(r, 100)); 
 
                     const baseScale = 1.45; 
 
@@ -668,7 +656,6 @@
                     wrapper.appendChild(inner);
                     overlay.appendChild(wrapper);
 
-                    // 3. EJEÇÃO COM MOLA (SPRING EFFECT)
                     wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
                     wrapper.style.opacity = '1';
 
@@ -679,7 +666,6 @@
 
                     await new Promise(r => setTimeout(r, 1200));
 
-                    // REVELAÇÃO ÉPICA
                     wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                     inner.classList.add('flip');
 
@@ -689,12 +675,11 @@
                         wrapper.classList.remove('flash-peak');
                         wrapper.classList.add('flash-fade'); 
                         wrapper.classList.add('reveal');
-                        inner.classList.add('mythic-glow'); // Liga a aura mítica permanentemente!
+                        inner.classList.add('mythic-glow'); 
                     }, 2000);
 
-                    await new Promise(r => setTimeout(r, 4500)); // Tempo longo de glória
+                    await new Promise(r => setTimeout(r, 4500)); 
 
-                    // VOAR PARA O TOPO
                     let target = document.getElementById('specialCardContainer');
                     if(!target.querySelector('.card')) {
                         target.style.width = 'var(--card-width)';
@@ -742,14 +727,22 @@
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
 
             let cartasParaAdicionar = [];
+            let allowsSpecialOnly = false;
 
             if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
                 cartasParaAdicionar = dadosCodigo.cartas_recompensa.map(id => Number(id));
             } else {
-                if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) return alert("Seu compêndio já está completo!");
-                for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
-                    const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
-                    cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
+                if (d.cartas_desbloqueadas.length >= TOTAL_SLOTS) {
+                    if (!d.carta_especial) {
+                        allowsSpecialOnly = true;
+                    } else {
+                        return alert("Seu compêndio já está completo!");
+                    }
+                } else {
+                    for (let i = 0; i < Math.min(3, TOTAL_SLOTS - d.cartas_desbloqueadas.length); i++) {
+                        const indexSorteado = Math.floor(Math.random() * NOMES_DOS_DEUSES.length);
+                        cartasParaAdicionar.push(cartasDisponiveis[indexSorteado].id);
+                    }
                 }
             }
 
@@ -758,36 +751,36 @@
             const arrayNovoConvertido = cartasParaAdicionar.map(Number);
             const todasAsCartas = new Set([...arrayAtualConvertido, ...arrayNovoConvertido]);
             
-            let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
+            let updateData = {};
+            if (cartasParaAdicionar.length > 0) updateData.cartas_desbloqueadas = arrayUnion(...cartasParaAdicionar);
+            updateData.codigos_usados = arrayUnion(cod);
+            
             let ganhouEspecial = false;
             
-            // Trava de Drop: O Jogador completou o álbum EXATAMENTE agora?
+            // O Jogador acabou de completar as 23 cartas ou está usando o resgate só pra pegar a mítica
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
                 updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
                 ganhouEspecial = true;
             }
 
-            // Salva os dados no banco
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
 
-            // O GRANDE SHOW
-            // 1. Roda a animação das cartas comuns primeiro
             let itensNormais = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
+            
+            // 1. Roda a animação das cartas comuns (Se houverem)
             if (itensNormais.length > 0) {
                 await executarAnimacaoNormal(itensNormais);
-                // Atualiza visualmente o grid das cartas comuns
-                await carregarDados(); 
             }
 
-            // 2. O Drop Lendário separado!
+            // 2. O Drop Lendário separado (Só vai acionar se não existia carta especial antes)
             if (ganhouEspecial) {
-                // Pausa dramática depois que as cartas normais pousaram...
-                await new Promise(r => setTimeout(r, 800)); 
+                if (itensNormais.length > 0) await new Promise(r => setTimeout(r, 800)); 
                 await executarAnimacaoLendaria({ id: updateData.carta_especial, isSpecial: true });
-                // Atualiza visualmente a carta especial no topo
-                await carregarDados(); 
             }
+
+            // Atualiza tudo visualmente no fundo da página!
+            await carregarDados();
         };
 
         document.getElementById('btnShare').onclick = async () => {
