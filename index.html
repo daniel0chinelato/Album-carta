@@ -109,16 +109,26 @@
             min-height: var(--card-height);
         }
 
+        /* --- AURA DA CARTA MÍTICA NO DECK --- */
         .special-card {
             transform: scale(1.1);
-            /* Borda Azul Mítica */
-            box-shadow: 0 0 40px var(--mythic-blue-glow); 
-            border: 1px solid var(--mythic-blue); 
+            border: none;
+            animation: resting-mythic-aura 2.5s infinite alternate ease-in-out;
         }
 
         .special-card:hover {
             transform: scale(1.15) translateY(-5px);
-            box-shadow: 0 0 60px var(--mythic-blue);
+            animation: hover-mythic-aura 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes resting-mythic-aura {
+            0% { box-shadow: 0 0 15px var(--mythic-blue-glow), 0 0 30px rgba(0, 50, 150, 0.3); }
+            100% { box-shadow: 0 0 35px var(--mythic-blue), 0 0 70px rgba(0, 119, 255, 0.6); }
+        }
+
+        @keyframes hover-mythic-aura {
+            0% { box-shadow: 0 0 35px var(--mythic-blue), 0 0 70px rgba(0, 119, 255, 0.6); }
+            100% { box-shadow: 0 0 60px var(--mythic-blue-bright), 0 0 100px var(--mythic-blue); }
         }
 
         .album-grid { 
@@ -173,7 +183,6 @@
         /* FX ONDA DE CHOQUE MÍTICA (AZUL) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
-            /* Gradiente Azul */
             background: radial-gradient(circle, #ffffff 0%, var(--mythic-blue) 40%, rgba(0,0,0,0) 70%); 
             transform: translate(-50%, -50%) scale(0);
             border-radius: 50%; opacity: 0; pointer-events: none; z-index: 999;
@@ -222,7 +231,7 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
 
-        /* Aura Mítica Permanente e Pulsante (Azul) */
+        /* Aura Mítica Animada na Revelação (Azul) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-blue 1.5s infinite alternate ease-in-out; }
 
         @keyframes mythic-pulse-blue {
@@ -235,7 +244,6 @@
             backface-visibility: hidden; border-radius: var(--card-radius); overflow: hidden;
         }
 
-        /* Os versos são definidos dinamicamente no JS */
         .anim-card-back { background-size: cover; background-position: center; } 
         
         .anim-card-front { transform: rotateY(180deg); background: #000; }
@@ -419,10 +427,9 @@
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
                 pack.style.pointerEvents = 'auto';
-                pack.style.backgroundImage = "url('card_verso.jpeg')"; // Verso normal
                 pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
+                pack.style.backgroundImage = "url('card_verso.jpeg')";
                 pack.classList.remove('explode', 'shaking', 'shaking-epic');
-                floater.classList.remove('explode-fx');
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
@@ -499,7 +506,7 @@
 
                     // --- PARTE MÍTICA ---
                     if (itemEspecial) {
-                        await new Promise(r => setTimeout(r, 500)); // Suspense
+                        await new Promise(r => setTimeout(r, 500)); 
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
@@ -513,12 +520,10 @@
 
                         pack.onclick = async () => {
                             pack.onclick = null;
-                            /* Build-up Mítico (Azul) */
                             pack.classList.add('shaking-epic'); 
                             await new Promise(r => setTimeout(r, 1500)); 
                             pack.classList.remove('shaking-epic');
                             pack.style.display = 'none'; 
-                            /* Onda de Choque Mítica (Azul) */
                             floater.classList.add('explode-fx'); 
                             
                             const wrapper = document.createElement('div');
@@ -546,7 +551,6 @@
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade', 'reveal');
-                                /* Aura Mítica Permanente (Azul) */
                                 inner.classList.add('mythic-glow');
                             }, 2000);
 
