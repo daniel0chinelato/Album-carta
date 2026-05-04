@@ -158,24 +158,33 @@
             backdrop-filter: blur(5px);
         }
 
-        .pack-base {
-            width: 180px; height: 242px; border-radius: var(--card-radius);
-            background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
-            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
-            cursor: pointer; transition: transform 0.3s ease, filter 0.3s;
+        /* O floater isola a flutuação do resto das transformações */
+        .pack-floater {
             animation: float-pack 3s ease-in-out infinite;
             position: relative;
         }
 
+        .pack-base {
+            width: var(--card-width); height: var(--card-height); 
+            border-radius: var(--card-radius);
+            background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
+            cursor: pointer; 
+            transform: scale(1.3); /* Tamanho padrão padronizado */
+            transition: transform 0.3s ease, filter 0.3s;
+            position: relative;
+        }
+
         .pack-base::after {
-            content: "CLIQUE PARA REVELAR A CARTA"; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
-            color: var(--gold); font-family: var(--font-epic); font-size: 0.85rem; letter-spacing: 2px; white-space: nowrap;
+            content: "CLIQUE PARA REVELAR A CARTA"; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            color: var(--gold); font-family: var(--font-epic); font-size: 0.75rem; letter-spacing: 2px; white-space: nowrap;
             animation: pulse-text 1.5s infinite;
         }
 
-        .pack-base:hover { transform: scale(1.05); box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
+        .pack-base:hover { transform: scale(1.35); box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
+        
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        .pack-base.explode { transform: scale(1.5); opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
+        .pack-base.explode { transform: scale(1.8); opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
         
         /* Estrutura 3D */
         .anim-card-wrapper {
@@ -188,14 +197,15 @@
         .anim-card-inner {
             position: relative; width: 100%; height: 100%;
             transform-style: preserve-3d;
-            transition: transform 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Salto elástico na virada */
+            transition: transform 2.5s cubic-bezier(0.25, 1, 0.4, 1); /* Tempo suave de giros */
             border-radius: var(--card-radius);
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
         }
 
-        /* O giro principal chamando a sombra branca explosiva */
+        /* O giro principal de 1620 graus (4 giros e meio para terminar de frente) */
         .anim-card-inner.flip {
-            transform: rotateY(180deg);
-            animation: white-blast-shadow 1.5s ease-out forwards;
+            transform: rotateY(1620deg);
+            box-shadow: 0 0 50px rgba(212,175,55,0.8);
         }
 
         .anim-card-face {
@@ -205,36 +215,38 @@
             overflow: hidden;
         }
 
-        .anim-card-back { background: url('card_verso.jpeg') center/cover; box-shadow: 0 0 20px rgba(212,175,55,0.4); }
+        .anim-card-back { background: url('card_verso.jpeg') center/cover; }
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* O Flash Branco (Efeito Cegante) que surge na frente da carta e apaga */
-        .anim-card-inner.flip .anim-card-front::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        /* A luz branca cegante que engole a carta enquanto ela gira */
+        .anim-card-wrapper::after {
+            content: ''; position: absolute;
+            top: -10%; left: -10%; width: 120%; height: 120%;
+            border-radius: calc(var(--card-radius) * 1.5);
             background: #ffffff;
-            animation: pure-white-flash 1.2s ease-out forwards;
-            pointer-events: none;
+            box-shadow: 0 0 150px #ffffff, 0 0 80px #ffffff;
+            opacity: 0; pointer-events: none;
+            z-index: 20;
         }
 
-        @keyframes pure-white-flash {
-            0% { opacity: 1; }
-            15% { opacity: 1; }
-            100% { opacity: 0; }
+        .anim-card-wrapper.flash::after {
+            animation: blinding-flash 2.5s ease-in-out forwards;
         }
 
-        @keyframes white-blast-shadow {
-            0% { box-shadow: 0 0 0px rgba(255,255,255,0); }
-            15% { box-shadow: 0 0 150px rgba(255,255,255,1), 0 0 80px rgba(255,255,255,0.9); }
-            100% { box-shadow: 0 0 40px rgba(212,175,55,0.8); }
+        @keyframes blinding-flash {
+            0% { opacity: 0; }
+            35% { opacity: 1; } /* Fica totalmente branco no meio dos giros */
+            65% { opacity: 1; }
+            100% { opacity: 0; } /* Dissipa revelando a arte */
         }
 
         @keyframes float-pack { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @keyframes shake-pack {
-            0%, 100% { transform: translateX(0) scale(1.05); }
-            25% { transform: translateX(-8px) rotate(-3deg) scale(1.05); }
-            75% { transform: translateX(8px) rotate(3deg) scale(1.05); }
+            0%, 100% { transform: translateX(0) scale(1.3); }
+            25% { transform: translateX(-8px) rotate(-3deg) scale(1.3); }
+            75% { transform: translateX(8px) rotate(3deg) scale(1.3); }
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -269,7 +281,9 @@
 
     <!-- Overlay da Animação do Pacote 3D -->
     <div id="summon-overlay" class="hide-on-print">
-        <div id="pack-element" class="pack-base"></div>
+        <div class="pack-floater">
+            <div id="pack-element" class="pack-base"></div>
+        </div>
     </div>
 
     <div id="main-app">
@@ -474,7 +488,7 @@
 
                     const animCards = [];
                     const scaleNormal = 1.3;
-                    const scaleHighlight = 1.6;
+                    const scaleHighlight = 1.7;
 
                     itens.forEach((item, index) => {
                         const wrapper = document.createElement('div');
@@ -511,7 +525,7 @@
                     // Pausa de suspense
                     await new Promise(r => setTimeout(r, 1200));
 
-                    // Revelação Épica (Flash Branco) - Uma a uma para mostrar bem a carta ganha!
+                    // Revelação Épica com Giros e Flash Branco - Uma a uma
                     animCards.forEach(({wrapper, inner}, index) => {
                         setTimeout(() => {
                             // Traz a carta mais pra frente pra mostrar a glória
@@ -519,13 +533,14 @@
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${scaleHighlight})`;
                             wrapper.style.zIndex = "1000" + index; 
                             
-                            // Gira com explosão branca!
+                            // Adiciona as classes do giro turbinado e do flash
                             inner.classList.add('flip');
-                        }, index * 600); // 600ms de intervalo entre as revelações
+                            wrapper.classList.add('flash');
+                        }, index * 800); // 800ms de intervalo para cada carta ter seu brilho individual
                     });
 
-                    // Dá bastante tempo para o jogador admirar a arte das cartas reveladas
-                    const waitTime = 3000 + (animCards.length * 600);
+                    // Tempo para admirar o deus revelado
+                    const waitTime = 2600 + (animCards.length * 800);
                     await new Promise(r => setTimeout(r, waitTime));
 
                     // Voar para o álbum físico
