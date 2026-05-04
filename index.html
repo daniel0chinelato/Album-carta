@@ -132,88 +132,69 @@
         .card:not(.revealed) img { opacity: 1; filter: none; }
 
         /* ========================================================
-           AURA PRISMÁTICA (COMPACTA, FLUIDA E ELEGANTE)
+           AURA PRISMÁTICA (CONTORNO MINIMALISTA E ELEGANTE)
            ======================================================== */
         .special-card {
             transform: scale(1.1);
-            /* Borda sutil de luz para não brigar com as cores */
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: none;
             overflow: visible !important;
             z-index: 10;
-            animation: dbz-float-sober 3s ease-in-out infinite, resting-mythic-shadow-prismatic 4s linear infinite;
+            animation: dbz-float-sober 3s ease-in-out infinite;
+            background: transparent;
         }
 
-        /* Camada Externa: Vórtice Prismático Reduzido (Tamanho controlado) */
+        /* O Contorno Brilhante Fino (Linha Rente) */
         .special-card::before {
             content: '';
             position: absolute;
-            top: -12%; left: -12%; /* Bem mais rente à carta */
-            width: 124%; height: 124%; 
-            background: conic-gradient(from 0deg, #ff4757, #ffa502, #2ed573, #1e90ff, #9c88ff, #ff4757);
-            border-radius: 50%; /* Mantém redondo sem quinas */
-            filter: blur(12px); /* Desfoque menor para não manchar o site */
-            z-index: -2;
-            opacity: 0.6;
-            animation: spin-nebula-prismatic 4s linear infinite;
-            pointer-events: none;
-            mix-blend-mode: screen;
+            top: -3px; left: -3px; right: -3px; bottom: -3px; /* Apenas 3px maior que a carta */
+            border-radius: calc(var(--card-radius) + 2px);
+            background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #1e90ff, #9c88ff, #ff4757);
+            background-size: 300% 100%;
+            z-index: -1;
+            animation: flow-contour 2.5s linear infinite;
+            filter: blur(2px); /* Efeito neon fino e controlado */
+            opacity: 0.9;
         }
 
-        /* Camada Interna: Fluxo Orgânico (Blob) Refletindo Cores */
+        /* O Brilho de Fundo Suave (Pra não ficar um traço seco) */
         .special-card::after {
             content: '';
             position: absolute;
-            top: -4%; left: -4%; /* Colado na borda */
-            width: 108%; height: 108%;
-            background: linear-gradient(135deg, #ff6b81, #7bed9f, #70a1ff, #ff7f50);
-            background-size: 200% 200%;
-            /* Formato de Gota (Blob) fluído e sem quinas */
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; 
-            filter: blur(8px);
-            z-index: -1;
-            opacity: 0.8;
-            animation: smooth-plasma-prismatic 5s linear infinite;
-            pointer-events: none;
-            mix-blend-mode: screen;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: var(--card-radius);
+            background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #1e90ff, #9c88ff, #ff4757);
+            background-size: 300% 100%;
+            z-index: -2;
+            filter: blur(12px); /* Desfoque contido que morre rápido */
+            opacity: 0.3;
+            animation: flow-contour 2.5s linear infinite, pulse-contour 2s ease-in-out infinite alternate;
         }
 
-        /* Hover: A magia desperta com elegância */
+        /* Hover: O contorno acelera levemente */
         .special-card:hover {
             transform: scale(1.15) translateY(-5px);
-            border-color: #ffffff;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.5);
         }
 
         .special-card:hover::before {
-            opacity: 0.9;
-            filter: blur(15px);
-            animation-duration: 2s; /* Vórtice acelera */
+            filter: blur(3px);
+            animation-duration: 1.5s;
         }
 
         .special-card:hover::after {
-            opacity: 1;
-            filter: blur(10px);
-            animation-duration: 2.5s; 
+            opacity: 0.6;
+            filter: blur(16px);
+            animation-duration: 1.5s, 1s;
         }
 
-        /* Sombras suaves e coloridas na própria borda da carta */
-        @keyframes resting-mythic-shadow-prismatic {
-            0% { box-shadow: 0 0 15px rgba(255, 71, 87, 0.3), inset 0 0 10px rgba(255, 71, 87, 0.2); }
-            33% { box-shadow: 0 0 15px rgba(46, 213, 115, 0.3), inset 0 0 10px rgba(46, 213, 115, 0.2); }
-            66% { box-shadow: 0 0 15px rgba(30, 144, 255, 0.3), inset 0 0 10px rgba(30, 144, 255, 0.2); }
-            100% { box-shadow: 0 0 15px rgba(255, 71, 87, 0.3), inset 0 0 10px rgba(255, 71, 87, 0.2); }
+        @keyframes flow-contour {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
-        @keyframes spin-nebula-prismatic {
-            0% { transform: scale(0.95) rotate(0deg); }
-            50% { transform: scale(1.05) rotate(180deg); }
-            100% { transform: scale(0.95) rotate(360deg); }
-        }
-
-        @keyframes smooth-plasma-prismatic {
-            0% { transform: rotate(0deg) scale(0.95); background-position: 0% 50%; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            50% { transform: rotate(180deg) scale(1.02); background-position: 100% 50%; border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; }
-            100% { transform: rotate(360deg) scale(0.95); background-position: 0% 50%; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        @keyframes pulse-contour {
+            0% { opacity: 0.2; }
+            100% { opacity: 0.5; }
         }
 
         @keyframes dbz-float-sober {
@@ -294,13 +275,13 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
         
-        /* Pulso Prismático durante o evento de revelação no ar */
+        /* Contorno Prismático reduzido também no meio do ar */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal-prismatic 2s infinite alternate ease-in-out; }
         @keyframes mythic-pulse-reveal-prismatic {
-            0% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.6), 0 0 40px rgba(255, 165, 2, 0.4); }
-            33% { box-shadow: 0 0 40px rgba(46, 213, 115, 0.8), 0 0 60px rgba(30, 144, 255, 0.5); }
-            66% { box-shadow: 0 0 30px rgba(155, 89, 182, 0.7), 0 0 50px rgba(255, 71, 87, 0.5); }
-            100% { box-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 80px rgba(255, 165, 2, 0.8); }
+            0% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.6), 0 0 15px rgba(255, 165, 2, 0.4); }
+            33% { box-shadow: 0 0 8px rgba(46, 213, 115, 0.8), 0 0 15px rgba(30, 144, 255, 0.5); }
+            66% { box-shadow: 0 0 8px rgba(155, 89, 182, 0.7), 0 0 15px rgba(255, 71, 87, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 20px rgba(30, 144, 255, 0.8); }
         }
 
         .anim-card-face {
@@ -485,7 +466,6 @@
             const baseScale = 1.45;
 
             return new Promise(async resolve => {
-                // RESET DO PACOTE COMUM
                 overlay.style.display = 'flex';
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
@@ -574,7 +554,6 @@
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
                         
-                        /* APLICA VERSO MÍTICO E TEXTO MÍTICO */
                         pack.style.backgroundImage = "url('verso_mitico.jpeg')";
                         pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
                         
