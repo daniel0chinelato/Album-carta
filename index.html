@@ -22,7 +22,7 @@
             --card-height: 224px;
             --card-radius: 6px;
             
-            /* Cores do Drop Mítico */
+            /* Cores do Drop Mítico e Ki */
             --mythic-blue: #0077ff; 
             --mythic-blue-glow: rgba(0, 119, 255, 0.5);
             --mythic-blue-bright: #66b2ff; 
@@ -136,57 +136,106 @@
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
         .card:not(.revealed) img { opacity: 1; filter: none; }
 
-        /* --- AURA MÍTICA COMPACTADA NO DECK --- */
+        /* ========================================================
+           AURA ESTILO DBZ (KI CHARGING) NO DECK 
+           ======================================================== */
         .special-card {
             transform: scale(1.1);
-            border: 1px solid rgba(102, 178, 255, 0.4); 
+            border: 1px solid rgba(102, 178, 255, 0.6); 
             overflow: visible !important; 
             z-index: 10; 
-            animation: resting-mythic-shadow 2.5s infinite alternate ease-in-out;
+            animation: dbz-float 2s ease-in-out infinite;
+            box-shadow: 0 0 20px var(--mythic-blue), inset 0 0 15px rgba(255,255,255,0.3);
         }
 
-        /* Vórtice Cósmico Controlado */
+        /* Camada Externa do Ki (Fluindo para cima) */
         .special-card::before {
-            content: ''; position: absolute; top: -25%; left: -25%; width: 150%; height: 150%;
-            background: conic-gradient(from 0deg, transparent 0%, var(--mythic-blue) 25%, transparent 50%, var(--mythic-blue-bright) 75%, transparent 100%);
-            animation: spin-mythic-vortex 6s linear infinite;
-            z-index: -2; opacity: 0.6; border-radius: 50%; filter: blur(8px); pointer-events: none;
+            content: ''; 
+            position: absolute; 
+            bottom: -10%; 
+            left: -15%; 
+            width: 130%; 
+            height: 140%; /* Mais alto para as chamas subirem */
+            background: linear-gradient(to top, transparent 10%, var(--mythic-blue) 40%, var(--mythic-blue-bright) 70%, #ffffff 100%);
+            z-index: -2; 
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Molde irregular orgânico */
+            filter: blur(12px);
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.7;
+            animation: ki-flame-1 0.7s linear infinite alternate;
         }
 
-        /* Núcleo Pulsante Justo */
+        /* Camada Interna do Ki (Mais densa e clara) */
         .special-card::after {
-            content: ''; position: absolute; top: -5%; left: -5%; width: 110%; height: 110%;
-            background: radial-gradient(circle, var(--mythic-blue-bright) 0%, var(--mythic-blue) 40%, transparent 70%);
-            z-index: -1; opacity: 0.5; animation: pulse-mythic-core 2s infinite alternate ease-in-out; pointer-events: none;
+            content: ''; 
+            position: absolute; 
+            bottom: -5%; 
+            left: -5%;
+            width: 110%;
+            height: 120%;
+            background: linear-gradient(to top, transparent 20%, var(--mythic-blue-bright) 50%, #ffffff 100%);
+            z-index: -1;
+            border-radius: 50% 50% 40% 60% / 60% 40% 50% 40%;
+            filter: blur(8px);
+            pointer-events: none;
+            opacity: 0.9;
+            animation: ki-flame-2 0.5s linear infinite alternate-reverse;
         }
 
+        /* --- MODO SUPER SAIYAJIN BLUE (HOVER) --- */
         .special-card:hover {
             transform: scale(1.15) translateY(-5px);
             border-color: #ffffff;
-            box-shadow: 0 0 35px var(--mythic-blue-bright), inset 0 0 15px #ffffff;
+            box-shadow: 0 0 40px var(--mythic-blue-bright), inset 0 0 30px #ffffff;
+            animation: dbz-shake 0.1s linear infinite; /* Tremor de energia bruta */
         }
 
-        .special-card:hover::before {
-            animation: spin-mythic-vortex 2s linear infinite; 
-            opacity: 0.8; filter: blur(12px);
+        .special-card:hover::before { 
+            animation-duration: 0.2s; /* Ki explode e acelera muito */
+            opacity: 1; 
+            filter: blur(15px); 
+            height: 160%; /* Chamas sobem mais */
         }
 
-        .special-card:hover::after {
-            opacity: 0.7; transform: scale(1.05);
+        .special-card:hover::after { 
+            animation-duration: 0.15s; 
+            opacity: 1; 
+            filter: blur(10px); 
         }
 
-        @keyframes spin-mythic-vortex { 100% { transform: rotate(360deg); } }
-        @keyframes pulse-mythic-core { 0% { transform: scale(0.95); opacity: 0.3; } 100% { transform: scale(1.05); opacity: 0.6; } }
-        @keyframes resting-mythic-shadow {
-            0% { box-shadow: 0 0 10px var(--mythic-blue-glow), inset 0 0 5px var(--mythic-blue-glow); }
-            100% { box-shadow: 0 0 25px var(--mythic-blue), inset 0 0 10px var(--mythic-blue); }
+        /* Animações de distorção fluindo para cima */
+        @keyframes ki-flame-1 {
+            0% { transform: translateY(0) scaleX(1) scaleY(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            100% { transform: translateY(-20px) scaleX(0.9) scaleY(1.15); border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; }
         }
+
+        @keyframes ki-flame-2 {
+            0% { transform: translateY(0) scaleX(1) scaleY(1); border-radius: 50% 50% 40% 60% / 60% 40% 50% 40%; }
+            100% { transform: translateY(-15px) scaleX(0.95) scaleY(1.2); border-radius: 30% 70% 60% 40% / 40% 50% 40% 60%; }
+        }
+
+        /* Levitação suave quando parado */
+        @keyframes dbz-float {
+            0%, 100% { transform: scale(1.1) translateY(0); }
+            50% { transform: scale(1.1) translateY(-3px); }
+        }
+
+        /* Tremor violento ao passar o mouse */
+        @keyframes dbz-shake {
+            0% { transform: scale(1.15) translate(0, -5px); }
+            25% { transform: scale(1.15) translate(-1px, -6px); }
+            50% { transform: scale(1.15) translate(1px, -4px); }
+            75% { transform: scale(1.15) translate(-1px, -4px); }
+            100% { transform: scale(1.15) translate(1px, -6px); }
+        }
+        /* ======================================================== */
 
         /* --- POPUP / MODAL --- */
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END --- */
+        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END UNIFICADO --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -203,6 +252,7 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
+        /* FX ONDA DE CHOQUE MÍTICA (AZUL) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, #ffffff 0%, var(--mythic-blue) 40%, rgba(0,0,0,0) 70%); 
@@ -250,8 +300,9 @@
         }
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
+        
+        /* Aura Mítica Animada na Revelação (Azul) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal 1.5s infinite alternate ease-in-out; }
-
         @keyframes mythic-pulse-reveal {
             0% { box-shadow: 0 0 40px var(--mythic-blue-glow), 0 0 80px rgba(0, 50, 150, 0.6); }
             100% { box-shadow: 0 0 100px #ffffff, 0 0 150px var(--mythic-blue), 0 0 220px rgba(0, 50, 150, 0.8); }
@@ -277,6 +328,7 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
+        /* KEYFRAMES GERAIS */
         @keyframes epic-shockwave-blue { 
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 
             40% { opacity: 1; box-shadow: 0 0 200px var(--mythic-blue-bright); } 
@@ -437,6 +489,7 @@
             const baseScale = 1.45;
 
             return new Promise(async resolve => {
+                // RESET DO PACOTE COMUM
                 overlay.style.display = 'flex';
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
@@ -465,6 +518,7 @@
                         const faceBack = document.createElement('div');
                         faceBack.className = 'anim-card-face anim-card-back';
                         
+                        /* APLICA VERSO NORMAL PARA COMUNS */
                         faceBack.style.backgroundImage = "url('card_verso.jpeg')"; 
 
                         const faceFront = document.createElement('div');
@@ -518,12 +572,14 @@
                     await new Promise(r => setTimeout(r, 1200));
                     document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
+                    // --- PARTE MÍTICA ---
                     if (itemEspecial) {
                         await new Promise(r => setTimeout(r, 500)); 
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
                         
+                        /* APLICA VERSO MÍTICO E TEXTO MÍTICO */
                         pack.style.backgroundImage = "url('verso_mitico.jpeg')";
                         pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO AZUL.');
                         
@@ -544,6 +600,7 @@
                             inner.className = 'anim-card-inner';
                             const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
                             
+                            /* APLICA VERSO MÍTICO PARA LENDÁRIA */
                             fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
 
                             const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
