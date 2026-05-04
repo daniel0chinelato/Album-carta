@@ -16,12 +16,16 @@
             --panel-bg: rgba(12, 12, 15, 0.4);
             --gold: #d4af37;
             --gold-dim: #8a7322;
-            --gold-glow: rgba(212, 175, 55, 0.15);
             --text-light: #d1d1d1;
             --font-epic: 'Cinzel', serif;
             --card-width: 167px;
             --card-height: 224px;
             --card-radius: 6px;
+            
+            /* Nova Cor do Drop Mítico */
+            --mythic-blue: #0077ff; 
+            --mythic-blue-glow: rgba(0, 119, 255, 0.5);
+            --mythic-blue-bright: #66b2ff; 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,7 +87,7 @@
         .input-group input:focus { background: #000; border-color: var(--gold-dim); }
         
         button { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 12px 25px; cursor: pointer; transition: 0.3s; font-weight: 400; letter-spacing: 2px; }
-        button:hover { background: var(--gold-glow); }
+        button:hover { background: rgba(212, 175, 55, 0.15); }
         
         .btn-invocar { background: #0c0c0f; color: var(--gold); border: 1px solid var(--gold-dim); font-weight: 700; }
         .btn-invocar:hover { background: var(--gold); color: #000; }
@@ -103,6 +107,18 @@
             width: 100%;
             margin-bottom: 3.5rem;
             min-height: var(--card-height);
+        }
+
+        .special-card {
+            transform: scale(1.1);
+            /* Borda Azul Mítica */
+            box-shadow: 0 0 40px var(--mythic-blue-glow); 
+            border: 1px solid var(--mythic-blue); 
+        }
+
+        .special-card:hover {
+            transform: scale(1.15) translateY(-5px);
+            box-shadow: 0 0 60px var(--mythic-blue);
         }
 
         .album-grid { 
@@ -133,12 +149,16 @@
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
         .card:not(.revealed) img { opacity: 1; filter: none; }
 
-        /* --- SISTEMAS DE ANIMAÇÃO UNIFICADO --- */
+        /* --- POPUP / MODAL --- */
+        #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
+        #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* --- SISTEMAS DE ANIMAÇÃO FRONT-END UNIFICADO --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
             z-index: 9999; display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(5px);
         }
 
         .pack-floater {
@@ -150,15 +170,16 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* FX ONDA DE CHOQUE */
+        /* FX ONDA DE CHOQUE MÍTICA (AZUL) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
-            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(212,175,55,0.8) 40%, rgba(0,0,0,0) 70%);
+            /* Gradiente Azul */
+            background: radial-gradient(circle, #ffffff 0%, var(--mythic-blue) 40%, rgba(0,0,0,0) 70%); 
             transform: translate(-50%, -50%) scale(0);
             border-radius: 50%; opacity: 0; pointer-events: none; z-index: 999;
             mix-blend-mode: screen;
         }
-        .pack-floater.explode-fx::before { animation: epic-shockwave 1s ease-out forwards; }
+        .pack-floater.explode-fx::before { animation: epic-shockwave-blue 1s ease-out forwards; }
 
         .pack-base {
             width: var(--card-width); height: var(--card-height); 
@@ -176,12 +197,15 @@
             animation: pulse-text 1.5s infinite;
         }
 
-        /* ANIMAÇÕES DO PACOTE */
+        .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
+        
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        .pack-base.shaking-epic { animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
-        /* Estrutura 3D das Cartas */
+        /* Build-up Mítico (Azul) */
+        .pack-base.shaking-epic { animation: build-up-tension-blue 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        
+        /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
             left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45); 
@@ -197,11 +221,13 @@
         }
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
-        .anim-card-inner.mythic-glow { animation: mythic-pulse 1.5s infinite alternate ease-in-out; }
 
-        @keyframes mythic-pulse {
-            0% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 69, 0, 0.6); }
-            100% { box-shadow: 0 0 100px rgba(255, 255, 255, 1), 0 0 150px rgba(255, 215, 0, 1), 0 0 220px rgba(255, 69, 0, 0.8); }
+        /* Aura Mítica Permanente e Pulsante (Azul) */
+        .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-blue 1.5s infinite alternate ease-in-out; }
+
+        @keyframes mythic-pulse-blue {
+            0% { box-shadow: 0 0 40px var(--mythic-blue-glow), 0 0 80px rgba(0, 50, 150, 0.6); }
+            100% { box-shadow: 0 0 100px #ffffff, 0 0 150px var(--mythic-blue), 0 0 220px rgba(0, 50, 150, 0.8); }
         }
 
         .anim-card-face {
@@ -209,12 +235,15 @@
             backface-visibility: hidden; border-radius: var(--card-radius); overflow: hidden;
         }
 
-        .anim-card-back { background: url('card_verso.jpeg') center/cover; }
+        /* Os versos são definidos dinamicamente no JS */
+        .anim-card-back { background-size: cover; background-position: center; } 
+        
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .anim-card-front::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; opacity: 1; z-index: 2; border-radius: var(--card-radius); }
         .anim-card-wrapper.reveal .anim-card-front::after { opacity: 0; transition: opacity 1.5s ease-out; }
 
+        /* Aura Externa Branca do Flash */
         .anim-card-wrapper::before {
             content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
@@ -224,13 +253,19 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES */
-        @keyframes epic-shockwave { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); } 100% { transform: translate(-50%, -50%) scale(30); opacity: 0; } }
-        @keyframes build-up-tension {
-            0% { transform: translateX(0) rotate(0); filter: brightness(1); }
-            50% { filter: brightness(2); }
-            100% { transform: translateX(0) rotate(0); filter: brightness(4); box-shadow: 0 0 200px #fff; }
+        /* KEYFRAMES REFORMULADOS (AZUL) */
+        @keyframes epic-shockwave-blue { 
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 
+            40% { opacity: 1; box-shadow: 0 0 200px var(--mythic-blue-bright); } 
+            100% { transform: translate(-50%, -50%) scale(30); opacity: 0; } 
         }
+        
+        @keyframes build-up-tension-blue {
+            0% { transform: translateX(0) rotate(0); filter: brightness(1); }
+            50% { filter: brightness(2) drop-shadow(0 0 20px var(--mythic-blue)); }
+            100% { transform: translateX(0) rotate(0); filter: brightness(4) drop-shadow(0 0 40px var(--mythic-blue-bright)); box-shadow: 0 0 200px #fff; }
+        }
+        
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @keyframes shake-pack { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px) rotate(-4deg); } 75% { transform: translateX(6px) rotate(4deg); } }
@@ -263,6 +298,7 @@
         </div>
     </div>
 
+    <!-- Overlay da Animação UNIFICADO -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
             <div id="pack-element" class="pack-base" data-text=""></div>
@@ -383,8 +419,10 @@
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
                 pack.style.pointerEvents = 'auto';
+                pack.style.backgroundImage = "url('card_verso.jpeg')"; // Verso normal
                 pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
                 pack.classList.remove('explode', 'shaking', 'shaking-epic');
+                floater.classList.remove('explode-fx');
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
@@ -404,6 +442,10 @@
                         inner.className = 'anim-card-inner';
                         const faceBack = document.createElement('div');
                         faceBack.className = 'anim-card-face anim-card-back';
+                        
+                        /* APLICA VERSO NORMAL PARA COMUNS */
+                        faceBack.style.backgroundImage = "url('card_verso.jpeg')"; 
+
                         const faceFront = document.createElement('div');
                         faceFront.className = 'anim-card-face anim-card-front';
                         const img = document.createElement('img');
@@ -461,16 +503,22 @@
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
-                        pack.style.backgroundImage = "url('card_verso.jpeg')";
-                        pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
-                        pack.classList.remove('explode', 'shaking');
+                        
+                        /* APLICA VERSO MÍTICO E TEXTO MÍTICO */
+                        pack.style.backgroundImage = "url('verso_mitico.jpeg')";
+                        pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO AZUL.');
+                        
+                        pack.classList.remove('explode', 'shaking', 'shaking-epic');
+                        floater.classList.remove('explode-fx');
 
                         pack.onclick = async () => {
                             pack.onclick = null;
+                            /* Build-up Mítico (Azul) */
                             pack.classList.add('shaking-epic'); 
                             await new Promise(r => setTimeout(r, 1500)); 
                             pack.classList.remove('shaking-epic');
                             pack.style.display = 'none'; 
+                            /* Onda de Choque Mítica (Azul) */
                             floater.classList.add('explode-fx'); 
                             
                             const wrapper = document.createElement('div');
@@ -478,6 +526,10 @@
                             const inner = document.createElement('div');
                             inner.className = 'anim-card-inner';
                             const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
+                            
+                            /* APLICA VERSO MÍTICO PARA LENDÁRIA */
+                            fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
+
                             const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
                             const img = document.createElement('img'); img.src = `especial_${itemEspecial.id}.jpeg`;
                             fFront.appendChild(img); inner.appendChild(fBack); inner.appendChild(fFront); wrapper.appendChild(inner);
@@ -494,6 +546,7 @@
                             setTimeout(() => {
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade', 'reveal');
+                                /* Aura Mítica Permanente (Azul) */
                                 inner.classList.add('mythic-glow');
                             }, 2000);
 
