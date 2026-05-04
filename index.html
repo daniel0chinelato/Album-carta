@@ -183,7 +183,7 @@
             background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
             cursor: pointer; transition: filter 0.3s; position: relative;
-            pointer-events: auto; /* IMPORTANTE: Habilita o clique */
+            pointer-events: auto; 
         }
 
         .pack-base::after {
@@ -195,17 +195,16 @@
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
         
-        /* Tremor Padrão (Cartas Normais) */
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
-        /* Tremor Épico / Build-up (Para Carta Especial) */
         .pack-base.shaking-epic { animation: build-up-tension 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
         /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0); /* Nascem no meio e invisíveis */
+            /* Cartas já nascem do tamanho do pacote (1.45) */
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45); 
             perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
         }
 
@@ -219,7 +218,6 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
 
-        /* Aura MíticaPermanentement Pulsante */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse 1.5s infinite alternate ease-in-out; }
 
         @keyframes mythic-pulse {
@@ -253,7 +251,7 @@
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES REFORMULADOS */
+        /* KEYFRAMES */
         @keyframes epic-shockwave {
             0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
             40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); }
@@ -312,7 +310,7 @@
         </div>
     </div>
 
-    <!-- Overlay da Animação UNIFICADO -->
+    <!-- Overlay da Animação -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
             <div id="pack-element" class="pack-base" data-text="CLIQUE PARA REVELAR A CARTA"></div>
@@ -445,8 +443,9 @@
                 let cartasSalvas = dados.cartas_desbloqueadas || [];
                 let cartaEspecial = dados.carta_especial;
 
-                // GARANTIA: Se não tem o álbum completo, a carta especial não pode existir.
-                if (cartasSalvas.length < TOTAL_SLOTS) {
+                const cartasUnicas = new Set(cartasSalvas.map(Number));
+                
+                if (cartasUnicas.size < TOTAL_SLOTS) {
                     cartaEspecial = null; 
                 }
 
@@ -498,14 +497,14 @@
                 const overlay = document.getElementById('summon-overlay');
                 const pack = document.getElementById('pack-element');
                 const floater = document.querySelector('.pack-floater');
+                const baseScale = 1.45; 
                 
-                // Reseta tudo 100% antes de aparecer
                 pack.setAttribute('data-text', 'CLIQUE PARA REVELAR A CARTA');
                 floater.classList.remove('explode-fx');
                 pack.classList.remove('shaking', 'shaking-epic', 'explode');
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
-                pack.style.pointerEvents = 'auto'; // GARANTE QUE PODE SER CLICADO
+                pack.style.pointerEvents = 'auto'; 
                 pack.style.filter = 'none';
                 
                 document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
@@ -524,9 +523,8 @@
                     pack.style.display = 'none';
 
                     const animCards = [];
-                    const baseScale = 1.45; 
 
-                    // 1. REVELAÇÃO DAS CARTAS COMUNS
+                    // 1. REVELAÇÃO DAS CARTAS COMUNS (Efeito Deslizar Lateral)
                     itensNormais.forEach((item, index) => {
                         const wrapper = document.createElement('div');
                         wrapper.className = 'anim-card-wrapper';
@@ -551,20 +549,22 @@
                         
                         animCards.push({ wrapper, inner, item });
 
-                        // Ejeção com efeito mola
-                        wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
-                        wrapper.style.opacity = '1';
+                        // Nascem atrás do pacote no TAMANHO REAL, invisíveis
+                        wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
+                        wrapper.style.opacity = '0';
 
                         setTimeout(() => {
                             const offset = (index - (itensNormais.length - 1) / 2) * 220;
-                            wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                            // Deslizam elegantemente para os lados
+                            wrapper.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                        }, 50 * index);
+                            wrapper.style.opacity = '1';
+                        }, 100 * index);
                     });
 
                     await new Promise(r => setTimeout(r, 1200));
 
-                    // REVELAÇÃO COMUNS
+                    // GIRO E BRILHO BRANCO DAS COMUNS
                     animCards.forEach(({wrapper, inner}, index) => {
                         setTimeout(() => {
                             const offset = (index - (itensNormais.length - 1) / 2) * 220;
@@ -585,7 +585,6 @@
                         }, index * 1000);
                     });
 
-                    // Tempo de espera baseado no número de cartas comuns
                     const waitTimeComuns = 3800 + (animCards.length * 1000);
                     await new Promise(r => setTimeout(r, waitTimeComuns));
 
@@ -604,32 +603,29 @@
                     });
 
                     await new Promise(r => setTimeout(r, 1200));
-                    document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove()); // Limpa as comuns
+                    document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
-                    // 2. O MOMENTO MÍTICO ININTERRUPTO
+                    // 2. O EVENTO MÍTICO (Caso tenha completado)
                     if (itemEspecial) {
-                        // Reseta o pacote SEM FECHAR O OVERLAY
                         pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
                         floater.classList.remove('explode-fx');
                         pack.classList.remove('explode', 'shaking');
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
-                        pack.style.pointerEvents = 'auto'; // Reabilita clique
+                        pack.style.pointerEvents = 'auto';
+                        pack.style.filter = 'none';
 
-                        // Novo handler para a carta mítica
                         pack.onclick = async () => {
                             pack.onclick = null;
                             
-                            // Build-up de energia épico
                             pack.classList.add('shaking-epic'); 
                             await new Promise(r => setTimeout(r, 1500)); 
                             
-                            // A ONDA DE CHOQUE ÉPICA E EXPLOSÃO Shockwave FX
                             pack.classList.remove('shaking-epic');
                             pack.style.display = 'none'; 
-                            floater.classList.add('explode-fx'); // Dispara Shockwave
+                            floater.classList.add('explode-fx'); 
                             
-                            await new Promise(r => setTimeout(r, 100)); // Ponto de impacto central
+                            await new Promise(r => setTimeout(r, 100)); 
 
                             const wrapper = document.createElement('div');
                             wrapper.className = 'anim-card-wrapper';
@@ -648,18 +644,17 @@
                             wrapper.appendChild(inner);
                             overlay.appendChild(wrapper);
 
-                            // Ejeção Mítica Elástica
-                            wrapper.style.transform = `translate(-50%, -50%) scale(0)`;
-                            wrapper.style.opacity = '1';
+                            // Nasce do nada elegantemente no meio sem pular tamanho
+                            wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
+                            wrapper.style.opacity = '0';
 
                             setTimeout(() => {
-                                wrapper.style.transition = 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                                wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
+                                wrapper.style.transition = 'opacity 0.6s ease-out';
+                                wrapper.style.opacity = '1';
                             }, 50);
 
                             await new Promise(r => setTimeout(r, 1200));
 
-                            // Revelação Permanentemente Pulsante
                             wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
                             inner.classList.add('flip');
                             setTimeout(() => { wrapper.classList.add('flash-peak'); }, 1700);
@@ -667,12 +662,11 @@
                                 wrapper.classList.remove('flash-peak');
                                 wrapper.classList.add('flash-fade'); 
                                 wrapper.classList.add('reveal');
-                                inner.classList.add('mythic-glow'); // Liga a aura mítica permanentemente!
+                                inner.classList.add('mythic-glow'); 
                             }, 2000);
 
-                            await new Promise(r => setTimeout(r, 4500)); // Tempo longo de glória
+                            await new Promise(r => setTimeout(r, 4500)); 
 
-                            // VOAR PARA O TOPO
                             let target = document.getElementById('specialCardContainer');
                             if(!target.querySelector('.card')) {
                                 target.style.width = 'var(--card-width)';
@@ -686,13 +680,11 @@
 
                             await new Promise(r => setTimeout(r, 1200));
                             
-                            // Agora sim, encerra tudo
                             overlay.style.display = 'none';
                             document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
                             resolve();
                         };
                     } else {
-                        // Se não tem especial, encerra aqui
                         overlay.style.display = 'none';
                         document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
                         resolve();
@@ -729,24 +721,19 @@
             let cartasParaAdicionar = [];
             
             const arrayAtualConvertido = (d.cartas_desbloqueadas || []).map(Number);
-            
-            // --- SORTEIO INTELIGENTE ATUALIZADO ---
-            // Puxa SOMENTE as cartas que o jogador ainda não possui para garantir a completaçãodo álbum!
             let unownedCardsIds = cartasDisponiveis.map(c => c.id).filter(id => !arrayAtualConvertido.includes(id));
 
             if (dadosCodigo.cartas_recompensa && dadosCodigo.cartas_recompensa.length > 0) {
                 cartasParaAdicionar = dadosCodigo.cartas_recompensa.map(id => Number(id));
             } else {
                 if (arrayAtualConvertido.length >= TOTAL_SLOTS) {
-                    // O Compêndio já está cheio, resgate falha nas normais
+                    if (d.carta_especial) return alert("Seu compêndio já está completo!");
                 } else {
                     const slotsDisponiveis = Math.min(3, TOTAL_SLOTS - arrayAtualConvertido.length);
                     for (let i = 0; i < slotsDisponiveis; i++) {
                         if (unownedCardsIds.length > 0) {
-                            // Puxa uma carta que o jogador NÃO tem!
                             const indexSorteado = Math.floor(Math.random() * unownedCardsIds.length);
                             cartasParaAdicionar.push(unownedCardsIds[indexSorteado]);
-                            // Remove da lista para não sortear 2 iguais no mesmo pacote
                             unownedCardsIds.splice(indexSorteado, 1);
                         }
                     }
@@ -763,26 +750,17 @@
             let ganhouEspecialFinal = false;
             let especialIdFinal = null;
             
-            // Verificação de glória: O jogador atingiu as 23 cartas EXATAMENTE agora?
             if (todasAsCartasSet.size >= TOTAL_SLOTS && !d.carta_especial) {
-                // Sorteia uma das 4 míticas aleatoriamente
                 especialIdFinal = Math.floor(Math.random() * 4) + 1;
                 updateData.carta_especial = especialIdFinal;
                 ganhouEspecialFinal = true;
-            } else if (todasAsCartasSet.size >= TOTAL_SLOTS && d.carta_especial) {
-                // Caso o usuário já tenha o álbum cheio, mas por algum erro não ganhou a mítica (raro)
-                // updateData.carta_especial = d.carta_especial;
-                // especialIdFinal = d.carta_especial;
-                // ganhouEspecialFinal = true;
-            }
+            } 
 
-            // Salva tudo no Firebase
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
 
             let itensNormaisParaAnimar = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
             
-            // O GRANDE FLUXO UNIFICADO (COMUNS E MÍTICA EM SEQUÊNCIA NO MESMO OVERLAY)
             if (ganhouEspecialFinal) {
                 await executarFluxoAnimacao(itensNormaisParaAnimar, { id: especialIdFinal, isSpecial: true });
             } else if (itensNormaisParaAnimar.length > 0) {
@@ -791,7 +769,6 @@
                 return alert("Guerreiro, este código não lhe trouxe novidades materiais.");
             }
 
-            // Atualiza o background final (grid físico e topo mítico)
             await carregarDados();
         };
 
