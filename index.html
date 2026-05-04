@@ -75,7 +75,7 @@
         h1 { font-size: 2.2rem; letter-spacing: 3px; font-weight: 400; margin-bottom: 0.5rem; color: var(--text-light); text-transform: uppercase; }
         .subtitle { color: #555; font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 2.5rem; text-transform: uppercase; }
 
-        /* --- CONTROLES (Minimalistas) --- */
+        /* --- CONTROLES --- */
         .controls-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 3.5rem; }
 
         .input-group { display: flex; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 2px; overflow: hidden; }
@@ -150,7 +150,7 @@
         #card-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.95); z-index: 1000; justify-content: center; align-items: center; cursor: zoom-out; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
         #modal-img { max-width: 90%; max-height: 85vh; border-radius: var(--card-radius); box-shadow: 0 0 50px rgba(0,0,0,1); animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        /* --- ANIMAÇÃO DO PACOTE DE CARTAS --- */
+        /* --- ANIMAÇÃO MISTERIOSA 3D --- */
         #summon-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle at center, rgba(12,12,15,0.95) 0%, rgba(0,0,0,0.98) 100%);
@@ -162,28 +162,57 @@
             width: 180px; height: 242px; border-radius: var(--card-radius);
             background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
             box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
-            cursor: pointer; transition: transform 0.3s ease;
+            cursor: pointer; transition: transform 0.3s ease, filter 0.3s;
             animation: float-pack 3s ease-in-out infinite;
             position: relative;
         }
 
         .pack-base::after {
-            content: "CLIQUE PARA ROMPER O SELO"; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            content: "CLIQUE PARA REVELAR A CARTA"; position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
             color: var(--gold); font-family: var(--font-epic); font-size: 0.85rem; letter-spacing: 2px; white-space: nowrap;
             animation: pulse-text 1.5s infinite;
         }
 
-        .pack-base:hover { transform: scale(1.05); box-shadow: 0 0 90px rgba(212, 175, 55, 1); }
+        .pack-base:hover { transform: scale(1.05); box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        .pack-base.explode { transform: scale(1.5); opacity: 0; filter: brightness(2); transition: 0.4s; pointer-events: none; }
+        .pack-base.explode { transform: scale(1.5); opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
         
-        .anim-card {
+        /* Sistema 3D de Virada de Carta */
+        .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            border-radius: var(--card-radius); box-shadow: 0 0 40px rgba(212,175,55,0.8);
-            opacity: 0; pointer-events: none; 
             left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.1);
+            perspective: 1200px; z-index: 10000; opacity: 0; pointer-events: none;
             transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out, width 1.2s ease-in-out, height 1.2s ease-in-out;
-            z-index: 10000;
+        }
+
+        .anim-card-inner {
+            position: relative; width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.6, -0.2, 0.4, 1.2); /* Salto e giro com peso */
+            border-radius: var(--card-radius);
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+
+        .anim-card-inner.flip {
+            transform: rotateY(180deg);
+            animation: mysterious-glow 1.5s ease-in-out forwards;
+        }
+
+        .anim-card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; /* Esconde as costas da carta girada */
+            border-radius: var(--card-radius);
+            overflow: hidden;
+        }
+
+        .anim-card-back { background: url('card_verso.jpeg') center/cover; }
+        .anim-card-front { transform: rotateY(180deg); }
+        .anim-card-front img { width: 100%; height: 100%; object-fit: cover; }
+
+        @keyframes mysterious-glow {
+            0% { box-shadow: 0 0 20px rgba(212,175,55,0.4); filter: brightness(1); }
+            50% { box-shadow: 0 0 100px rgba(255,255,255,0.9), 0 0 40px rgba(212,175,55,1); filter: brightness(1.5); }
+            100% { box-shadow: 0 0 40px rgba(212,175,55,0.8); filter: brightness(1); }
         }
 
         @keyframes float-pack { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
@@ -224,7 +253,7 @@
         </div>
     </div>
 
-    <!-- Overlay da Animação do Pacote -->
+    <!-- Overlay da Animação do Pacote 3D -->
     <div id="summon-overlay" class="hide-on-print">
         <div id="pack-element" class="pack-base"></div>
     </div>
@@ -243,7 +272,6 @@
                 <button id="btnShare" class="btn-share">Copiar Compêndio</button>
             </div>
 
-            <!-- Contêiner da Carta Especial Mítica -->
             <div id="specialCardContainer" class="special-container"></div>
 
             <div class="album-grid" id="albumGrid"></div>
@@ -357,7 +385,6 @@
 
                 const cartasUnicas = new Set(cartasSalvas.map(Number));
                 
-                // Distribui carta especial caso o usuário tenha 23 cartas retroativamente
                 if (cartasUnicas.size >= TOTAL_SLOTS && !cartaEspecial) {
                     cartaEspecial = Math.floor(Math.random() * 4) + 1;
                     await updateDoc(userRef, { carta_especial: cartaEspecial });
@@ -372,7 +399,6 @@
         }
 
         function renderizarGrid(cartasIds, cartaEspecialId) {
-            
             const specialContainer = document.getElementById('specialCardContainer');
             specialContainer.innerHTML = '';
             
@@ -406,57 +432,81 @@
             }
         }
 
-        // --- SISTEMA DE ANIMAÇÃO FRONT-END ---
+        // --- SISTEMA DE ANIMAÇÃO 3D ---
         function executarAnimacao(itens) {
             return new Promise(resolve => {
                 const overlay = document.getElementById('summon-overlay');
                 const pack = document.getElementById('pack-element');
                 
-                // Prepara a tela
                 overlay.style.display = 'flex';
                 pack.className = 'pack-base'; 
                 pack.style.opacity = '1';
                 pack.style.display = 'block';
+                pack.style.filter = 'none';
                 
-                // Limpa cartas animadas antigas, se houver
-                document.querySelectorAll('.anim-card').forEach(e => e.remove());
+                document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
 
                 pack.onclick = async () => {
-                    pack.onclick = null; // Bloqueia duplos cliques
+                    pack.onclick = null;
                     pack.classList.add('shaking');
                     
-                    // Tempo tremendo e ganhando poder
-                    await new Promise(r => setTimeout(r, 1200)); 
+                    await new Promise(r => setTimeout(r, 1000)); 
                     
-                    // Explosão do pacote
                     pack.classList.remove('shaking');
                     pack.classList.add('explode');
                     
-                    await new Promise(r => setTimeout(r, 350));
+                    await new Promise(r => setTimeout(r, 400));
                     pack.style.display = 'none';
 
-                    // Geração das cartas na tela
                     const animCards = [];
                     itens.forEach((item, index) => {
-                        const el = document.createElement('img');
-                        el.src = item.isSpecial ? `especial_${item.id}.jpeg` : cartasDisponiveis.find(c => c.id === item.id).imagem;
-                        el.className = 'anim-card';
-                        overlay.appendChild(el);
-                        animCards.push({el, item});
+                        // Construção da estrutura 3D
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'anim-card-wrapper';
+                        
+                        const inner = document.createElement('div');
+                        inner.className = 'anim-card-inner';
+                        
+                        const faceBack = document.createElement('div');
+                        faceBack.className = 'anim-card-face anim-card-back';
+                        
+                        const faceFront = document.createElement('div');
+                        faceFront.className = 'anim-card-face anim-card-front';
+                        
+                        const img = document.createElement('img');
+                        img.src = item.isSpecial ? `especial_${item.id}.jpeg` : cartasDisponiveis.find(c => c.id === item.id).imagem;
+                        
+                        faceFront.appendChild(img);
+                        inner.appendChild(faceBack);
+                        inner.appendChild(faceFront);
+                        wrapper.appendChild(inner);
+                        overlay.appendChild(wrapper);
+                        
+                        animCards.push({ wrapper, inner, item });
 
-                        // Espalha as cartas no centro da tela (fan out)
+                        // Surgem viradas para baixo e se espalham
                         setTimeout(() => {
                             const offset = (index - (itens.length - 1) / 2) * 190;
-                            el.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(1.4)`;
-                            el.style.opacity = '1';
+                            wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(1.4)`;
+                            wrapper.style.opacity = '1';
                         }, 100 * index);
                     });
 
-                    // Pausa para admirar as cartas dropadas
+                    // Pausa misteriosa
+                    await new Promise(r => setTimeout(r, 1000));
+
+                    // Mágica! As cartas giram e brilham
+                    animCards.forEach(({inner}, index) => {
+                        setTimeout(() => {
+                            inner.classList.add('flip');
+                        }, index * 200); 
+                    });
+
+                    // Tempo para o jogador comemorar a tiragem
                     await new Promise(r => setTimeout(r, 3500));
 
-                    // Voar para o álbum físico ao fundo
-                    animCards.forEach(({el, item}) => {
+                    // Voar para o álbum físico
+                    animCards.forEach(({wrapper, item}) => {
                         let target = null;
                         if (item.isSpecial) {
                             target = document.getElementById('specialCardContainer');
@@ -467,23 +517,19 @@
 
                         if (target) {
                             const rect = target.getBoundingClientRect();
-                            el.style.transform = 'none';
-                            el.style.left = `${rect.left}px`;
-                            el.style.top = `${rect.top}px`;
-                            el.style.width = `${rect.width}px`;
-                            el.style.height = `${rect.height}px`;
-                            el.style.opacity = '0.1'; // Esmaece conforme se aproxima do slot real
-                        } else {
-                            el.style.opacity = '0';
+                            wrapper.style.transform = 'none';
+                            wrapper.style.left = `${rect.left}px`;
+                            wrapper.style.top = `${rect.top}px`;
+                            wrapper.style.width = `${rect.width}px`;
+                            wrapper.style.height = `${rect.height}px`;
+                            wrapper.style.opacity = '0'; // Some sutilmente ao encaixar
                         }
                     });
 
-                    // Esperar o voo terminar
-                    await new Promise(r => setTimeout(r, 1200));
+                    await new Promise(r => setTimeout(r, 1000));
                     
-                    // Desliga a tela de animação
                     overlay.style.display = 'none';
-                    document.querySelectorAll('.anim-card').forEach(e => e.remove());
+                    document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
                     resolve();
                 };
             });
@@ -505,10 +551,7 @@
             if (dadosCodigo.expira_em) {
                 const dataExpiracao = dadosCodigo.expira_em.toDate();
                 const agora = new Date();
-                
-                if (agora > dataExpiracao) {
-                    return alert("A magia deste código já se dissipou no tempo! (Expirado)");
-                }
+                if (agora > dataExpiracao) return alert("A magia deste código já se dissipou no tempo! (Expirado)");
             }
 
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
@@ -532,36 +575,25 @@
             const cartasAtuais = d.cartas_desbloqueadas || [];
             const arrayAtualConvertido = cartasAtuais.map(Number);
             const arrayNovoConvertido = cartasParaAdicionar.map(Number);
-            
             const todasAsCartas = new Set([...arrayAtualConvertido, ...arrayNovoConvertido]);
             
-            let updateData = { 
-                cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), 
-                codigos_usados: arrayUnion(cod) 
-            };
-
+            let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
             let ganhouEspecial = false;
             
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
-                const idSorteado = Math.floor(Math.random() * 4) + 1;
-                updateData.carta_especial = idSorteado;
+                updateData.carta_especial = Math.floor(Math.random() * 4) + 1;
                 ganhouEspecial = true;
             }
 
-            // Salva silenciosamente no banco ANTES da animação
+            // Banco atualiza ANTES
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
 
-            // Prepara a fila das cartas que vão aparecer saltando do pacote
             let itensParaAnimar = cartasParaAdicionar.map(id => ({ id: id, isSpecial: false }));
-            if (ganhouEspecial) {
-                itensParaAnimar.push({ id: updateData.carta_especial, isSpecial: true });
-            }
+            if (ganhouEspecial) itensParaAnimar.push({ id: updateData.carta_especial, isSpecial: true });
 
-            // Roda o espetáculo visual
+            // Chama o show 3D
             await executarAnimacao(itensParaAnimar);
-            
-            // Depois que a animação acaba, apenas atualiza a grade ao fundo para mostrar o resultado definitivo
             await carregarDados();
         };
 
