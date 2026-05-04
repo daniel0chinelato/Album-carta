@@ -302,11 +302,30 @@
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             let nomeParaExibir = usuarioAtual.displayName || "Guerreiro";
+            
             if (snap.exists()) {
                 const dados = snap.data();
                 nomeParaExibir = dados.nome || nomeParaExibir;
-                // Agora envia também a carta especial, se o jogador já tiver ganhado
-                renderizarGrid(dados.cartas_desbloqueadas || [], dados.carta_especial);
+                
+                let cartasSalvas = dados.cartas_desbloqueadas || [];
+                let cartaEspecial = dados.carta_especial;
+
+                // --- CORREÇÃO RETROATIVA ---
+                // Verifica as cartas únicas para garantir a contagem certa (evitando duplicação string/number)
+                const cartasUnicas = new Set(cartasSalvas.map(Number));
+                
+                // Se ele já completou o álbum no passado, mas não tem a carta especial no Firebase:
+                if (cartasUnicas.size >= TOTAL_SLOTS && !cartaEspecial) {
+                    cartaEspecial = Math.floor(Math.random() * 4) + 1;
+                    await updateDoc(userRef, { carta_especial: cartaEspecial });
+                    
+                    // Aviso automático de que a recompensa finalmente chegou!
+                    setTimeout(() => {
+                        alert("A magia estava contida! Como seu álbum já estava completo, os deuses acabaram de lhe entregar a Carta Especial Mítica!");
+                    }, 500);
+                }
+
+                renderizarGrid(cartasSalvas, cartaEspecial);
             } else {
                 await setDoc(userRef, { nome: nomeParaExibir, email: usuarioAtual.email, cartas_desbloqueadas: [], codigos_usados: [] });
                 renderizarGrid([]);
@@ -314,14 +333,14 @@
             document.getElementById("displayNome").innerText = nomeParaExibir.toUpperCase();
         }
 
-        // --- SISTEMA DE RENDERIZAÇÃO ATUALIZADO (INCLUINDO A CARTA ESPECIAL) ---
         function renderizarGrid(cartasIds, cartaEspecialId) {
             
-            // 1. Renderiza a Carta Especial no Topo (se possuir)
             const specialContainer = document.getElementById('specialCardContainer');
             specialContainer.innerHTML = '';
+            
+            // 1. Renderiza a Carta Especial no Topo
             if (cartaEspecialId) {
-                const specialImg = `especial_${cartaEspecialId}.jpeg`; // Puxa especial_1.jpeg, especial_2.jpeg...
+                const specialImg = `especial_${cartaEspecialId}.jpeg`; 
                 const specialCardDiv = document.createElement('div');
                 specialCardDiv.className = 'card revealed special-card';
                 specialCardDiv.innerHTML = `<img src="${specialImg}" style="display:block">`;
@@ -329,7 +348,7 @@
                 specialContainer.appendChild(specialCardDiv);
             }
 
-            // 2. Renderiza as cartas normais do Álbum
+            // 2. Renderiza o restante do álbum
             const grid = document.getElementById('albumGrid');
             grid.innerHTML = '';
             
@@ -393,9 +412,14 @@
                 }
             }
 
-            // Descobre se o jogador vai completar o álbum exatemente AGORA com esse resgate
+            // Descobre se o jogador vai completar o álbum exatemente AGORA
             const cartasAtuais = d.cartas_desbloqueadas || [];
-            const todasAsCartas = new Set([...cartasAtuais, ...cartasParaAdicionar]);
+            
+            // Garantindo que todos os números sejam de fato números
+            const arrayAtualConvertido = cartasAtuais.map(Number);
+            const arrayNovoConvertido = cartasParaAdicionar.map(Number);
+            
+            const todasAsCartas = new Set([...arrayAtualConvertido, ...arrayNovoConvertido]);
             
             let updateData = { 
                 cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), 
@@ -404,9 +428,8 @@
 
             let ganhouEspecial = false;
             
-            // Se ele conseguiu 23 cartas (TOTAL_SLOTS) e ainda não tem a carta especial gravada no Firebase...
+            // Se ele conseguiu 23 cartas (TOTAL_SLOTS) e ainda não tem a especial...
             if (todasAsCartas.size >= TOTAL_SLOTS && !d.carta_especial) {
-                // Sorteia um número de 1 a 4
                 const idSorteado = Math.floor(Math.random() * 4) + 1;
                 updateData.carta_especial = idSorteado;
                 ganhouEspecial = true;
