@@ -22,7 +22,7 @@
             --card-height: 224px;
             --card-radius: 6px;
             
-            /* Cores do Drop Mítico e Ki */
+            /* Cores Sóbrias do Drop Mítico */
             --mythic-blue: #0077ff; 
             --mythic-blue-glow: rgba(0, 119, 255, 0.5);
             --mythic-blue-bright: #66b2ff; 
@@ -137,97 +137,77 @@
         .card:not(.revealed) img { opacity: 1; filter: none; }
 
         /* ========================================================
-           AURA ESTILO DBZ (KI CHARGING) NO DECK 
+           NOVA AURA: SÓBRIA, RAMIFICADA E MINIMALISTA
            ======================================================== */
         .special-card {
             transform: scale(1.1);
-            border: 1px solid rgba(102, 178, 255, 0.6); 
-            overflow: visible !important; 
-            z-index: 10; 
-            animation: dbz-float 2s ease-in-out infinite;
-            box-shadow: 0 0 20px var(--mythic-blue), inset 0 0 15px rgba(255,255,255,0.3);
+            border: 1px solid rgba(102, 178, 255, 0.4);
+            overflow: visible !important;
+            z-index: 10;
+            animation: dbz-float-sober 3s ease-in-out infinite;
+            /* Brilho base muito sutil rente à carta */
+            box-shadow: 0 0 15px rgba(0, 119, 255, 0.3), inset 0 0 10px rgba(0, 119, 255, 0.2);
         }
 
-        /* Camada Externa do Ki (Fluindo para cima) */
+        /* As ramificações (Branches) - Fios finos de energia cortando para fora */
         .special-card::before {
-            content: ''; 
-            position: absolute; 
-            bottom: -10%; 
-            left: -15%; 
-            width: 130%; 
-            height: 140%; /* Mais alto para as chamas subirem */
-            background: linear-gradient(to top, transparent 10%, var(--mythic-blue) 40%, var(--mythic-blue-bright) 70%, #ffffff 100%);
-            z-index: -2; 
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Molde irregular orgânico */
-            filter: blur(12px);
-            pointer-events: none;
-            mix-blend-mode: screen;
-            opacity: 0.7;
-            animation: ki-flame-1 0.7s linear infinite alternate;
-        }
-
-        /* Camada Interna do Ki (Mais densa e clara) */
-        .special-card::after {
-            content: ''; 
-            position: absolute; 
-            bottom: -5%; 
-            left: -5%;
-            width: 110%;
-            height: 120%;
-            background: linear-gradient(to top, transparent 20%, var(--mythic-blue-bright) 50%, #ffffff 100%);
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: var(--card-radius);
+            box-shadow:
+                /* Ramificações Superiores */
+                -15px -20px 4px -10px var(--mythic-blue-bright),
+                10px -25px 6px -12px var(--mythic-blue),
+                0px -30px 8px -15px var(--mythic-blue-glow),
+                /* Ramificações Inferiores */
+                20px 25px 5px -12px var(--mythic-blue-bright),
+                -10px 30px 6px -14px var(--mythic-blue),
+                5px 20px 4px -10px var(--mythic-blue-glow),
+                /* Ramificações Laterais */
+                -25px -5px 6px -12px var(--mythic-blue),
+                30px 10px 5px -14px var(--mythic-blue-bright),
+                -20px 15px 4px -10px var(--mythic-blue-glow),
+                25px -15px 6px -12px var(--mythic-blue);
             z-index: -1;
-            border-radius: 50% 50% 40% 60% / 60% 40% 50% 40%;
-            filter: blur(8px);
+            animation: branch-flicker 2s infinite alternate ease-in-out;
             pointer-events: none;
-            opacity: 0.9;
-            animation: ki-flame-2 0.5s linear infinite alternate-reverse;
         }
 
-        /* --- MODO SUPER SAIYAJIN BLUE (HOVER) --- */
+        /* O fluxo vertical (Minimalist Ki) - Linhas finas subindo na base */
+        .special-card::after {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 10%; width: 80%; height: 110%;
+            background: linear-gradient(to top, rgba(0, 119, 255, 0.5), transparent 70%);
+            -webkit-mask-image: repeating-linear-gradient(90deg, transparent 0, transparent 10%, black 11%, black 13%, transparent 14%);
+            mask-image: repeating-linear-gradient(90deg, transparent 0, transparent 10%, black 11%, black 13%, transparent 14%);
+            z-index: -2;
+            animation: ki-rise 2.5s linear infinite;
+            pointer-events: none;
+        }
+
+        /* Hover: A energia acelera sem deformar o layout */
         .special-card:hover {
             transform: scale(1.15) translateY(-5px);
-            border-color: #ffffff;
-            box-shadow: 0 0 40px var(--mythic-blue-bright), inset 0 0 30px #ffffff;
-            animation: dbz-shake 0.1s linear infinite; /* Tremor de energia bruta */
+            border-color: rgba(102, 178, 255, 0.8);
+            box-shadow: 0 0 25px rgba(0, 119, 255, 0.5), inset 0 0 20px rgba(0, 119, 255, 0.3);
         }
+        .special-card:hover::before { animation-duration: 0.8s; filter: brightness(1.3); }
+        .special-card:hover::after { animation-duration: 1.2s; opacity: 1; }
 
-        .special-card:hover::before { 
-            animation-duration: 0.2s; /* Ki explode e acelera muito */
-            opacity: 1; 
-            filter: blur(15px); 
-            height: 160%; /* Chamas sobem mais */
+        @keyframes branch-flicker {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.02); opacity: 1; }
         }
-
-        .special-card:hover::after { 
-            animation-duration: 0.15s; 
-            opacity: 1; 
-            filter: blur(10px); 
+        @keyframes ki-rise {
+            0% { transform: translateY(0); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-20px); opacity: 0; }
         }
-
-        /* Animações de distorção fluindo para cima */
-        @keyframes ki-flame-1 {
-            0% { transform: translateY(0) scaleX(1) scaleY(1); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            100% { transform: translateY(-20px) scaleX(0.9) scaleY(1.15); border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; }
-        }
-
-        @keyframes ki-flame-2 {
-            0% { transform: translateY(0) scaleX(1) scaleY(1); border-radius: 50% 50% 40% 60% / 60% 40% 50% 40%; }
-            100% { transform: translateY(-15px) scaleX(0.95) scaleY(1.2); border-radius: 30% 70% 60% 40% / 40% 50% 40% 60%; }
-        }
-
-        /* Levitação suave quando parado */
-        @keyframes dbz-float {
+        @keyframes dbz-float-sober {
             0%, 100% { transform: scale(1.1) translateY(0); }
             50% { transform: scale(1.1) translateY(-3px); }
-        }
-
-        /* Tremor violento ao passar o mouse */
-        @keyframes dbz-shake {
-            0% { transform: scale(1.15) translate(0, -5px); }
-            25% { transform: scale(1.15) translate(-1px, -6px); }
-            50% { transform: scale(1.15) translate(1px, -4px); }
-            75% { transform: scale(1.15) translate(-1px, -4px); }
-            100% { transform: scale(1.15) translate(1px, -6px); }
         }
         /* ======================================================== */
 
@@ -252,7 +232,7 @@
         }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* FX ONDA DE CHOQUE MÍTICA (AZUL) */
+        /* FX ONDA DE CHOQUE MÍTICA (AZUL E SÓBRIA) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, #ffffff 0%, var(--mythic-blue) 40%, rgba(0,0,0,0) 70%); 
@@ -301,11 +281,11 @@
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
         
-        /* Aura Mítica Animada na Revelação (Azul) */
+        /* Aura Mítica Animada na Revelação (Sóbria) */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal 1.5s infinite alternate ease-in-out; }
         @keyframes mythic-pulse-reveal {
-            0% { box-shadow: 0 0 40px var(--mythic-blue-glow), 0 0 80px rgba(0, 50, 150, 0.6); }
-            100% { box-shadow: 0 0 100px #ffffff, 0 0 150px var(--mythic-blue), 0 0 220px rgba(0, 50, 150, 0.8); }
+            0% { box-shadow: 0 0 20px var(--mythic-blue), inset 0 0 10px var(--mythic-blue-glow); }
+            100% { box-shadow: 0 0 40px var(--mythic-blue-bright), inset 0 0 20px var(--mythic-blue); }
         }
 
         .anim-card-face {
@@ -319,6 +299,7 @@
         .anim-card-front::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; opacity: 1; z-index: 2; border-radius: var(--card-radius); }
         .anim-card-wrapper.reveal .anim-card-front::after { opacity: 0; transition: opacity 1.5s ease-out; }
 
+        /* Aura Externa Branca do Flash */
         .anim-card-wrapper::before {
             content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
@@ -337,8 +318,8 @@
         
         @keyframes build-up-tension-blue {
             0% { transform: translateX(0) rotate(0); filter: brightness(1); }
-            50% { filter: brightness(2) drop-shadow(0 0 20px var(--mythic-blue)); }
-            100% { transform: translateX(0) rotate(0); filter: brightness(4) drop-shadow(0 0 40px var(--mythic-blue-bright)); box-shadow: 0 0 200px #fff; }
+            50% { filter: brightness(2) drop-shadow(0 0 15px var(--mythic-blue)); }
+            100% { transform: translateX(0) rotate(0); filter: brightness(3.5) drop-shadow(0 0 30px var(--mythic-blue-bright)); box-shadow: 0 0 150px #fff; }
         }
         
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
@@ -489,7 +470,6 @@
             const baseScale = 1.45;
 
             return new Promise(async resolve => {
-                // RESET DO PACOTE COMUM
                 overlay.style.display = 'flex';
                 pack.style.display = 'block';
                 pack.style.opacity = '1';
@@ -518,7 +498,6 @@
                         const faceBack = document.createElement('div');
                         faceBack.className = 'anim-card-face anim-card-back';
                         
-                        /* APLICA VERSO NORMAL PARA COMUNS */
                         faceBack.style.backgroundImage = "url('card_verso.jpeg')"; 
 
                         const faceFront = document.createElement('div');
@@ -600,7 +579,6 @@
                             inner.className = 'anim-card-inner';
                             const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
                             
-                            /* APLICA VERSO MÍTICO PARA LENDÁRIA */
                             fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
 
                             const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
