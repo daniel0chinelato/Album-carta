@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tavernas - Compendium</title>
+    <title>Era das Tavernas - Compendium</title>
     
-    <!-- Favicon da Taverna (Com Forçador de Atualização de Cache) -->
-    <link rel="shortcut icon" type="image/png" href="./favicon.png">
+    <!-- Favicon da Taverna (JPEG Autêntico) -->
+    <link rel="icon" type="image/jpeg" href="favicon.jpeg">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -16,8 +16,9 @@
     
     <style>
         :root {
+            /* Cores e Variáveis Dinâmicas */
             --bg-dark: #070709;
-            --panel-bg: rgba(12, 12, 15, 0.4);
+            --panel-bg: rgba(12, 12, 15, 0.4); /* Leve transparência para ver a madeira */
             --gold: #d4af37;
             --gold-dim: #8a7322;
             --text-light: #d1d1d1;
@@ -38,7 +39,16 @@
             color: var(--text-light); 
             font-family: 'Segoe UI', sans-serif;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; 
-            background-image: radial-gradient(circle at 50% 0%, #15151a 0%, var(--bg-dark) 100%);
+            
+            /* ========================================================
+               O FUNDO DA TAVERNA (Tampo da Mesa com slots gravados)
+               ======================================================== */
+            background-image: url('fundo_taverna.jpeg'); 
+            background-size: cover; 
+            background-attachment: fixed;
+            background-position: center;
+            /* ======================================================== */
+            
             overflow-x: hidden;
         }
 
@@ -111,6 +121,7 @@
             width: 100%;
             margin-bottom: 3.5rem;
             min-height: var(--card-height);
+            perspective: 1000px; /* Base para 3D */
         }
 
         .album-grid { 
@@ -133,12 +144,27 @@
             cursor: default;
             transition: all 0.4s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transform-style: preserve-3d; /* Base para virada 3D */
         }
+        
+        /* O Verso da Carta: Slot Vazio ou Mestre */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            backface-visibility: hidden;
+            border-radius: var(--card-radius);
+        }
+
+        /* Estilo Dinâmico para Slots Vazios em JS */
         
         .card.revealed { cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
         .card.revealed:not(.special-card):hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
-        .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
-        .card:not(.revealed) img { opacity: 1; filter: none; }
+        .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; z-index: 2;}
+        .card:not(.revealed) img { opacity: 0; } /* Esconde a frente */
 
         /* ========================================================
            AURA PRISMÁTICA (CONTORNO MINIMALISTA E ELEGANTE)
@@ -370,8 +396,8 @@
         <div class="container" id="album-container">
             <div class="hero-seal"></div>
             <h1>Compêndio de <span id="displayNome" style="color: #fff;"></span></h1>
-           <br>
-           <br>
+            <p class="subtitle hide-on-print">Panteão dos Deuses</p>
+            
             <div class="controls-wrapper hide-on-print">
                 <div class="input-group">
                     <input type="text" id="codigoInput" placeholder="CÓDIGO" maxlength="25">
@@ -441,6 +467,19 @@
             }
         }
 
+        // --- SISTEMA DE INSERÇÃO DINÂMICA DE VERSO NA MADEIRA ---
+        function setCardVerso(cardElement, isMestre, specialId) {
+            if (cardElement.classList.contains('revealed')) return;
+            if (isMestre) {
+                cardElement.style.setProperty('--verso-url', `url('card_${NOMES_DOS_DEUSES[specialId-1]}.jpeg')`);
+            } else {
+                // slot gravado na madeira
+                cardElement.style.setProperty('--verso-url', `url('card_placeholder.jpeg')`);
+            }
+            cardElement.style.backgroundImage = 'var(--verso-url)';
+        }
+        // ---
+
         function renderizarGrid(cartasIds, cartaEspecialId) {
             const specialContainer = document.getElementById('specialCardContainer');
             specialContainer.innerHTML = '';
@@ -461,8 +500,17 @@
                 const cartaDados = cartasDisponiveis.find(c => c.id === i);
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card' + (temEssaCarta ? ' revealed' : '');
-                cardDiv.innerHTML = temEssaCarta ? `<img src="${cartaDados.imagem}" style="display:block">` : `<img src="card_verso.jpeg" style="display:block">`;
-                if (temEssaCarta) cardDiv.onclick = () => openModal(cartaDados.imagem);
+                cardDiv.innerHTML = temEssaCarta ? `<img src="${cartaDados.imagem}" style="display:block">` : `<img src="card_verso.jpeg" style="display:block">`; // Isso sera sobrescrito no CSS pseudo-element
+                
+                if (temEssaCarta) {
+                    cardDiv.onclick = () => openModal(cartaDados.imagem);
+                } else {
+                    // slot na madeira
+                    cardDiv.style.backgroundImage = `url('card_placeholder.jpeg')`;
+                    cardDiv.style.backgroundSize = 'cover';
+                    cardDiv.style.backgroundPosition = 'center';
+                }
+                
                 grid.appendChild(cardDiv);
             }
         }
