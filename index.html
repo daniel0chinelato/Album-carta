@@ -638,7 +638,7 @@
 
             if (atuais.length >= TOTAL_SLOTS && d.carta_especial) return alert("Seu compêndio já está completo!");
 
-            const numSorteio = Math.min(3, TOTAL_SLOTS - atuais.length);
+            const numSorteio = Math.min(1, TOTAL_SLOTS - atuais.length);
             for (let i = 0; i < numSorteio; i++) {
                 if (faltantes.length > 0) {
                     const idx = Math.floor(Math.random() * faltantes.length);
