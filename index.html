@@ -621,42 +621,15 @@
             });
         }
 
-       document.getElementById('btnResgatar').onclick = async () => {
+        document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
             if (!cod) return alert("Mestre, insira um código válido.");
-            
             const codigoSnap = await getDoc(doc(db, "codigos", cod));
-            if (!codigoSnap.exists()) return alert("Código inválido ou inexistente.");
-
-            const codigoData = codigoSnap.data();
-
-            // VALIDAÇÃO 1: Desativação manual
-            if (codigoData.ativo === false) return alert("Este código foi selado.");
-
-            // VALIDAÇÃO 2: Verificação da Data de Expiração Segura
-            if (codigoData.expira_em) {
-                try {
-                    let dataExpiracao;
-                    // O Firebase usa "Timestamp". Isso converte pro formato de data do JavaScript.
-                    if (typeof codigoData.expira_em.toDate === 'function') {
-                        dataExpiracao = codigoData.expira_em.toDate();
-                    } else {
-                        // Caso a data tenha sido salva como texto sem querer
-                        dataExpiracao = new Date(codigoData.expira_em);
-                    }
-
-                    if (new Date() > dataExpiracao) {
-                        return alert("Este feitiço perdeu seu poder. O código já expirou!");
-                    }
-                } catch (e) {
-                    console.error("Erro ao ler a data de expiração:", e);
-                }
-            }
+            if (!codigoSnap.exists() || codigoSnap.data().ativo === false) return alert("Código inválido ou selado.");
 
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
-            
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
 
             let cartasParaAdicionar = [];
@@ -665,38 +638,32 @@
 
             if (atuais.length >= TOTAL_SLOTS && d.carta_especial) return alert("Seu compêndio já está completo!");
 
-            // SORTEIO DE 1 CARTA ALEATÓRIA
-            const numSorteio = Math.min(1, TOTAL_SLOTS - atuais.length); 
+            const numSorteio = Math.min(1, TOTAL_SLOTS - atuais.length);
             for (let i = 0; i < numSorteio; i++) {
                 if (faltantes.length > 0) {
                     const idx = Math.floor(Math.random() * faltantes.length);
                     cartasParaAdicionar.push(faltantes[idx]);
-                    faltantes.splice(idx, 1); 
+                    faltantes.splice(idx, 1);
                 }
             }
 
             const totalApos = new Set([...atuais, ...cartasParaAdicionar.map(Number)]);
-            let updateData = { 
-                cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), 
-                codigos_usados: arrayUnion(cod) 
-            };
+            let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
             
             let ganhouMítica = false;
-            // Drop Mítico ao completar o compêndio
             if (totalApos.size >= TOTAL_SLOTS && !d.carta_especial) {
                 const mythicId = Math.floor(Math.random() * 4) + 1;
                 updateData.carta_especial = mythicId;
                 ganhouMítica = true;
             }
 
-            // Salva os dados no banco
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
             
-            // Inicia animação
             await executarFluxoAnimacao(cartasParaAdicionar.map(id => ({id})), ganhouMítica ? {id: updateData.carta_especial} : null);
             await carregarDados();
         };
+
         // --- BOTÃO COMPARTILHAR CORRIGIDO ---
         document.getElementById('btnShare').onclick = async () => {
             const btn = document.getElementById('btnShare');
