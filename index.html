@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tavernas - Compendium</title>
-
+    
     <!-- Favicon da Taverna (Com Forçador de Atualização de Cache) -->
     <link rel="shortcut icon" type="image/png" href="./favicon.png">
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-
+    
     <style>
         :root {
             --bg-dark: #070709;
@@ -25,7 +25,7 @@
             --card-width: 167px;
             --card-height: 224px;
             --card-radius: 6px;
-
+            
             /* Cores Sóbrias do Drop Mítico */
             --mythic-blue: #0077ff; 
             --mythic-blue-glow: rgba(0, 119, 255, 0.5);
@@ -66,7 +66,7 @@
 
         /* --- CONTEÚDO PRINCIPAL --- */
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; padding: 0 2rem 4rem; }
-
+        
         .container { 
             background-color: transparent; 
             border-top: 1px solid rgba(212, 175, 55, 0.2); 
@@ -76,7 +76,7 @@
             margin-top: 80px; 
             position: relative; 
         }
-
+        
         .hero-seal { width: 50px; height: 50px; background: var(--bg-dark); border: 1px solid var(--gold-dim); position: absolute; top: -25px; left: 50%; transform: translateX(-50%) rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .hero-seal::after { content: ""; width: 8px; height: 8px; background: var(--gold-dim); transform: rotate(-45deg); border-radius: 50%; }
 
@@ -89,16 +89,16 @@
         .input-group { display: flex; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-radius: 2px; overflow: hidden; }
         .input-group input { background: #0a0a0c; border: 1px solid #1f1f24; border-right: none; color: var(--gold); padding: 12px 25px; font-size: 1rem; outline: none; width: 260px; text-align: center; letter-spacing: 2px; transition: 0.3s; }
         .input-group input:focus { background: #000; border-color: var(--gold-dim); }
-
+        
         button { background: transparent; color: var(--gold); border: 1px solid var(--gold-dim); padding: 12px 25px; cursor: pointer; transition: 0.3s; font-weight: 400; letter-spacing: 2px; }
         button:hover { background: rgba(212, 175, 55, 0.15); }
-
+        
         .btn-invocar { background: #0c0c0f; color: var(--gold); border: 1px solid var(--gold-dim); font-weight: 700; }
         .btn-invocar:hover { background: var(--gold); color: #000; }
 
         .btn-share { background: transparent; color: #666; border: 1px solid #222; font-size: 0.75rem; padding: 8px 24px; border-radius: 30px; letter-spacing: 1px; }
         .btn-share:hover { border-color: var(--gold-dim); color: var(--gold); background: rgba(212, 175, 55, 0.05); }
-
+        
         .btn-google { border-color: #222; color: #666; width: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
         .btn-google:hover { border-color: #fff; color: #fff; background: transparent; }
         .btn-logout { font-size: 0.7rem; border: none; color: #444; text-decoration: underline; margin-top: 50px; padding: 5px; }
@@ -119,7 +119,7 @@
             gap: 25px; 
             justify-items: center;
         }
-
+        
         .card { 
             width: var(--card-width); 
             height: var(--card-height); 
@@ -134,7 +134,7 @@
             transition: all 0.4s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-
+        
         .card.revealed { cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.8); }
         .card.revealed:not(.special-card):hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15); }
         .card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; border-radius: var(--card-radius); transition: 0.3s; display: block; }
@@ -260,13 +260,13 @@
         }
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
-
+        
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
 
         /* Build-up Mítico (Luz Intensa) */
         .pack-base.shaking-epic { animation: build-up-tension-prismatic 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-
+        
         /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
@@ -283,7 +283,7 @@
         }
 
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
-
+        
         /* Pulso Prismático durante o evento de revelação no ar */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal-prismatic 2s infinite alternate ease-in-out; }
         @keyframes mythic-pulse-reveal-prismatic {
@@ -320,17 +320,17 @@
             40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); } 
             100% { transform: translate(-50%, -50%) scale(30); opacity: 0; } 
         }
-
+        
         @keyframes build-up-tension-prismatic {
             0% { transform: translateX(0) rotate(0); filter: brightness(1); }
             50% { filter: brightness(2) drop-shadow(0 0 20px rgba(156, 136, 255, 0.8)); }
             100% { transform: translateX(0) rotate(0); filter: brightness(4) drop-shadow(0 0 40px rgba(255, 255, 255, 1)); box-shadow: 0 0 200px #fff; }
         }
-
+        
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @keyframes shake-pack { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px) rotate(-4deg); } 75% { transform: translateX(6px) rotate(4deg); } }
-
+        
         .hide-on-print { display: flex; }
     </style>
 </head>
@@ -502,7 +502,7 @@
                         inner.className = 'anim-card-inner';
                         const faceBack = document.createElement('div');
                         faceBack.className = 'anim-card-face anim-card-back';
-
+                        
                         faceBack.style.backgroundImage = "url('card_verso.jpeg')"; 
 
                         const faceFront = document.createElement('div');
@@ -562,10 +562,10 @@
                         pack.style.display = 'block';
                         pack.style.opacity = '1';
                         pack.style.pointerEvents = 'auto';
-
+                        
                         pack.style.backgroundImage = "url('verso_mitico.jpeg')";
                         pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
-
+                        
                         pack.classList.remove('explode', 'shaking', 'shaking-epic');
                         floater.classList.remove('explode-fx');
 
@@ -576,13 +576,13 @@
                             pack.classList.remove('shaking-epic');
                             pack.style.display = 'none'; 
                             floater.classList.add('explode-fx'); 
-
+                            
                             const wrapper = document.createElement('div');
                             wrapper.className = 'anim-card-wrapper';
                             const inner = document.createElement('div');
                             inner.className = 'anim-card-inner';
                             const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
-
+                            
                             fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
 
                             const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
@@ -624,35 +624,12 @@
         document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
             if (!cod) return alert("Mestre, insira um código válido.");
-
             const codigoSnap = await getDoc(doc(db, "codigos", cod));
             if (!codigoSnap.exists() || codigoSnap.data().ativo === false) return alert("Código inválido ou selado.");
-            if (!codigoSnap.exists()) return alert("Código inválido ou inexistente.");
-
-            const codigoData = codigoSnap.data();
-
-            // VALIDAÇÃO 1: Desativação manual
-            if (codigoData.ativo === false) return alert("Este código foi selado.");
-
-            // VALIDAÇÃO 2: Verificação da Data de Expiração Segura
-            if (codigoData.expira_em) {
-                try {
-                    let dataExpiracao = typeof codigoData.expira_em.toDate === 'function' 
-                        ? codigoData.expira_em.toDate() 
-                        : new Date(codigoData.expira_em);
-
-                    if (new Date() > dataExpiracao) {
-                        return alert("Este feitiço perdeu seu poder. O código já expirou!");
-                    }
-                } catch (e) {
-                    console.error("Erro ao ler a data de expiração:", e);
-                }
-            }
 
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
-            
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
 
             let cartasParaAdicionar = [];
@@ -669,47 +646,21 @@
                     faltantes.splice(idx, 1);
                 }
             }
-            // LÓGICA GACHA: Sorteio puro entre TODAS as 23 cartas (Gera a chance de Repetidas)
-            const idSorteado = Math.floor(Math.random() * TOTAL_SLOTS) + 1;
-            const cartaRepetida = atuais.includes(idSorteado);
 
             const totalApos = new Set([...atuais, ...cartasParaAdicionar.map(Number)]);
             let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
-            let updateData = { 
-                codigos_usados: arrayUnion(cod) 
-            };
-
+            
             let ganhouMítica = false;
             if (totalApos.size >= TOTAL_SLOTS && !d.carta_especial) {
                 const mythicId = Math.floor(Math.random() * 4) + 1;
                 updateData.carta_especial = mythicId;
                 ganhouMítica = true;
-
-            if (!cartaRepetida) {
-                // É uma carta nova!
-                updateData.cartas_desbloqueadas = arrayUnion(idSorteado);
-                atuais.push(idSorteado); // Atualiza o array local para checar se completou agora
-
-                // Verifica se essa carta finalizou o Panteão
-                if (atuais.length >= TOTAL_SLOTS && !d.carta_especial) {
-                    const mythicId = Math.floor(Math.random() * 4) + 1;
-                    updateData.carta_especial = mythicId;
-                    ganhouMítica = true;
-                }
             }
 
-            // Atualiza o banco (Sempre queima o código. Se for nova, salva a carta também)
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
-
+            
             await executarFluxoAnimacao(cartasParaAdicionar.map(id => ({id})), ganhouMítica ? {id: updateData.carta_especial} : null);
-            // Se for repetida, dá um aviso visual antes da animação
-            if (cartaRepetida) {
-                alert("Os deuses teceram fios cruzados... Você tirou uma carta REPETIDA!");
-            }
-
-            // Roda a animação do pacote normalmente para mostrar o que saiu (nova ou repetida)
-            await executarFluxoAnimacao([{id: idSorteado}], ganhouMítica ? {id: updateData.carta_especial} : null);
             await carregarDados();
         };
 
@@ -723,13 +674,13 @@
             try {
                 // Esconde os controles da interface
                 document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
-
+                
                 const canvas = await html2canvas(document.body, { 
                     backgroundColor: '#070709', 
                     scale: 2,
                     useCORS: true 
                 });
-
+                
                 // RESTAURAÇÃO CORRETA:
                 document.querySelectorAll('.hide-on-print').forEach(e => {
                     // SE FOR O OVERLAY DE ANIMAÇÃO OU O MODAL, GARANTE QUE VOLTE INVISÍVEL
@@ -760,7 +711,7 @@
             } catch (error) {
                 console.error("Erro ao gerar compêndio:", error);
                 alert("Os deuses bloquearam a visão! Erro ao gerar a imagem.");
-
+                
                 // Tratamento de erro também precisa restaurar corretamente
                 document.querySelectorAll('.hide-on-print').forEach(e => {
                     if(e.id === 'summon-overlay' || e.id === 'card-modal') {
