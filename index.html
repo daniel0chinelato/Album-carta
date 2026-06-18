@@ -15,6 +15,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
+
+        .badge-count {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            font-family: var(--font-epic);
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+        
         :root {
             --bg-dark: #070709;
             --panel-bg: rgba(12, 12, 15, 0.4);
@@ -441,30 +458,20 @@
             }
         }
 
-        function renderizarGrid(cartasIds, cartaEspecialId) {
-            const specialContainer = document.getElementById('specialCardContainer');
-            specialContainer.innerHTML = '';
-            if (cartaEspecialId && cartasIds.length >= TOTAL_SLOTS) {
-                const specialImg = `especial_${cartaEspecialId}.jpeg`; 
-                const specialCardDiv = document.createElement('div');
-                specialCardDiv.className = 'card revealed special-card';
-                specialCardDiv.innerHTML = `<img src="${specialImg}" style="display:block">`;
-                specialCardDiv.onclick = () => openModal(specialImg);
-                specialContainer.appendChild(specialCardDiv);
-            }
-
-            const grid = document.getElementById('albumGrid');
-            grid.innerHTML = '';
-            const cartasSeguras = cartasIds.map(id => Number(id));
-            for (let i = 1; i <= TOTAL_SLOTS; i++) {
-                const temEssaCarta = cartasSeguras.includes(i);
-                const cartaDados = cartasDisponiveis.find(c => c.id === i);
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card' + (temEssaCarta ? ' revealed' : '');
-                cardDiv.innerHTML = temEssaCarta ? `<img src="${cartaDados.imagem}" style="display:block">` : `<img src="card_verso.jpeg" style="display:block">`;
-                if (temEssaCarta) cardDiv.onclick = () => openModal(cartaDados.imagem);
-                grid.appendChild(cardDiv);
-            }
+        .badge-count {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid var(--gold-dim);
+            color: var(--gold);
+            font-family: var(--font-epic);
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
         }
 
         // --- SISTEMA DE ANIMAÇÃO UNIFICADO ---
