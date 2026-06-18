@@ -624,43 +624,74 @@
         document.getElementById('btnResgatar').onclick = async () => {
             const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
             if (!cod) return alert("Mestre, insira um código válido.");
+
             const codigoSnap = await getDoc(doc(db, "codigos", cod));
-            if (!codigoSnap.exists() || codigoSnap.data().ativo === false) return alert("Código inválido ou selado.");
+            if (!codigoSnap.exists()) return alert("Código inválido ou inexistente.");
+
+            const codigoData = codigoSnap.data();
+
+            // VALIDAÇÃO 1: Desativação manual
+            if (codigoData.ativo === false) return alert("Este código foi selado.");
+
+            // VALIDAÇÃO 2: Verificação da Data de Expiração Segura
+            if (codigoData.expira_em) {
+                try {
+                    let dataExpiracao = typeof codigoData.expira_em.toDate === 'function' 
+                        ? codigoData.expira_em.toDate() 
+                        : new Date(codigoData.expira_em);
+
+                    if (new Date() > dataExpiracao) {
+                        return alert("Este feitiço perdeu seu poder. O código já expirou!");
+                    }
+                } catch (e) {
+                    console.error("Erro ao ler a data de expiração:", e);
+                }
+            }
 
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
             const d = snap.data();
+            
             if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
 
-            let cartasParaAdicionar = [];
             const atuais = (d.cartas_desbloqueadas || []).map(Number);
-            let faltantes = cartasDisponiveis.map(c => c.id).filter(id => !atuais.includes(id));
 
             if (atuais.length >= TOTAL_SLOTS && d.carta_especial) return alert("Seu compêndio já está completo!");
 
-            const numSorteio = Math.min(1, TOTAL_SLOTS - atuais.length);
-            for (let i = 0; i < numSorteio; i++) {
-                if (faltantes.length > 0) {
-                    const idx = Math.floor(Math.random() * faltantes.length);
-                    cartasParaAdicionar.push(faltantes[idx]);
-                    faltantes.splice(idx, 1);
+            // LÓGICA GACHA: Sorteio puro entre TODAS as 23 cartas (Gera a chance de Repetidas)
+            const idSorteado = Math.floor(Math.random() * TOTAL_SLOTS) + 1;
+            const cartaRepetida = atuais.includes(idSorteado);
+
+            let updateData = { 
+                codigos_usados: arrayUnion(cod) 
+            };
+            
+            let ganhouMítica = false;
+
+            if (!cartaRepetida) {
+                // É uma carta nova!
+                updateData.cartas_desbloqueadas = arrayUnion(idSorteado);
+                atuais.push(idSorteado); // Atualiza o array local para checar se completou agora
+
+                // Verifica se essa carta finalizou o Panteão
+                if (atuais.length >= TOTAL_SLOTS && !d.carta_especial) {
+                    const mythicId = Math.floor(Math.random() * 4) + 1;
+                    updateData.carta_especial = mythicId;
+                    ganhouMítica = true;
                 }
             }
 
-            const totalApos = new Set([...atuais, ...cartasParaAdicionar.map(Number)]);
-            let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
-            
-            let ganhouMítica = false;
-            if (totalApos.size >= TOTAL_SLOTS && !d.carta_especial) {
-                const mythicId = Math.floor(Math.random() * 4) + 1;
-                updateData.carta_especial = mythicId;
-                ganhouMítica = true;
-            }
-
+            // Atualiza o banco (Sempre queima o código. Se for nova, salva a carta também)
             await updateDoc(userRef, updateData);
             document.getElementById("codigoInput").value = "";
             
-            await executarFluxoAnimacao(cartasParaAdicionar.map(id => ({id})), ganhouMítica ? {id: updateData.carta_especial} : null);
+            // Se for repetida, dá um aviso visual antes da animação
+            if (cartaRepetida) {
+                alert("Os deuses teceram fios cruzados... Você tirou uma carta REPETIDA!");
+            }
+
+            // Roda a animação do pacote normalmente para mostrar o que saiu (nova ou repetida)
+            await executarFluxoAnimacao([{id: idSorteado}], ganhouMítica ? {id: updateData.carta_especial} : null);
             await carregarDados();
         };
 
