@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tavernas - Compendium</title>
     
-    <!-- Favicon da Taverna (Com Forçador de Atualização de Cache) -->
     <link rel="shortcut icon" type="image/png" href="./favicon.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -152,21 +151,19 @@
             background: transparent;
         }
 
-        /* O Contorno Brilhante Fino (Linha Rente) */
         .special-card::before {
             content: '';
             position: absolute;
-            top: -3px; left: -3px; right: -3px; bottom: -3px; /* Apenas 3px maior que a carta */
+            top: -3px; left: -3px; right: -3px; bottom: -3px; 
             border-radius: calc(var(--card-radius) + 2px);
             background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573, #1e90ff, #9c88ff, #ff4757);
             background-size: 300% 100%;
             z-index: -1;
             animation: flow-contour 2.5s linear infinite;
-            filter: blur(2px); /* Efeito neon fino e controlado */
+            filter: blur(2px); 
             opacity: 0.9;
         }
 
-        /* O Brilho de Fundo Suave */
         .special-card::after {
             content: '';
             position: absolute;
@@ -180,36 +177,13 @@
             animation: flow-contour 2.5s linear infinite, pulse-contour 2s ease-in-out infinite alternate;
         }
 
-        /* Hover: O contorno acelera levemente */
-        .special-card:hover {
-            transform: scale(1.15) translateY(-5px);
-        }
+        .special-card:hover { transform: scale(1.15) translateY(-5px); }
+        .special-card:hover::before { filter: blur(3px); animation-duration: 1.5s; }
+        .special-card:hover::after { opacity: 0.6; filter: blur(16px); animation-duration: 1.5s, 1s; }
 
-        .special-card:hover::before {
-            filter: blur(3px);
-            animation-duration: 1.5s;
-        }
-
-        .special-card:hover::after {
-            opacity: 0.6;
-            filter: blur(16px);
-            animation-duration: 1.5s, 1s;
-        }
-
-        @keyframes flow-contour {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-
-        @keyframes pulse-contour {
-            0% { opacity: 0.2; }
-            100% { opacity: 0.5; }
-        }
-
-        @keyframes dbz-float-sober {
-            0%, 100% { transform: scale(1.1) translateY(0); }
-            50% { transform: scale(1.1) translateY(-3px); }
-        }
+        @keyframes flow-contour { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+        @keyframes pulse-contour { 0% { opacity: 0.2; } 100% { opacity: 0.5; } }
+        @keyframes dbz-float-sober { 0%, 100% { transform: scale(1.1) translateY(0); } 50% { transform: scale(1.1) translateY(-3px); } }
         /* ======================================================== */
 
         /* --- POPUP / MODAL --- */
@@ -224,68 +198,41 @@
             backdrop-filter: blur(5px);
         }
 
-        .pack-floater {
-            position: relative;
-            animation: float-pack 3s ease-in-out infinite;
-            transform: scale(1.45);
-            transition: transform 0.3s ease;
-            z-index: 10;
-        }
+        .pack-floater { position: relative; animation: float-pack 3s ease-in-out infinite; transform: scale(1.45); transition: transform 0.3s ease; z-index: 10; }
         .pack-floater:hover { transform: scale(1.50); }
 
-        /* FX ONDA DE CHOQUE MÍTICA (PRISMÁTICA) */
         .pack-floater::before {
             content: ''; position: absolute; top: 50%; left: 50%; width: 100px; height: 100px;
             background: radial-gradient(circle, #ffffff 0%, #ff4757 20%, #1e90ff 50%, rgba(0,0,0,0) 70%); 
-            transform: translate(-50%, -50%) scale(0);
-            border-radius: 50%; opacity: 0; pointer-events: none; z-index: 999;
-            mix-blend-mode: screen;
+            transform: translate(-50%, -50%) scale(0); border-radius: 50%; opacity: 0; pointer-events: none; z-index: 999; mix-blend-mode: screen;
         }
         .pack-floater.explode-fx::before { animation: epic-shockwave-prismatic 1s ease-out forwards; }
 
         .pack-base {
-            width: var(--card-width); height: var(--card-height); 
-            border-radius: var(--card-radius);
+            width: var(--card-width); height: var(--card-height); border-radius: var(--card-radius);
             background-image: url('card_verso.jpeg'); background-size: cover; background-position: center;
-            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6);
-            cursor: pointer; transition: all 0.3s; position: relative;
-            pointer-events: auto;
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.6); cursor: pointer; transition: all 0.3s; position: relative; pointer-events: auto;
         }
 
         .pack-base::after {
-            content: attr(data-text); 
-            position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
-            color: var(--gold); font-family: var(--font-epic); font-size: 0.70rem; letter-spacing: 2px; white-space: nowrap;
-            animation: pulse-text 1.5s infinite;
+            content: attr(data-text); position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+            color: var(--gold); font-family: var(--font-epic); font-size: 0.70rem; letter-spacing: 2px; white-space: nowrap; animation: pulse-text 1.5s infinite;
         }
 
         .pack-floater:hover .pack-base { box-shadow: 0 0 90px rgba(212, 175, 55, 1); filter: brightness(1.2); }
-        
         .pack-base.shaking { animation: shake-pack 0.4s cubic-bezier(.36,.07,.19,.97) both infinite; }
         .pack-base.explode { opacity: 0; filter: brightness(3); transition: 0.5s; pointer-events: none; }
-
-        /* Build-up Mítico (Luz Intensa) */
         .pack-base.shaking-epic { animation: build-up-tension-prismatic 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         
-        /* Estrutura 3D das Cartas Animadas */
         .anim-card-wrapper {
             position: fixed; width: var(--card-width); height: var(--card-height);
-            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45); 
-            perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
+            left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.45); perspective: 1500px; z-index: 10000; opacity: 0; pointer-events: none;
         }
 
-        .anim-card-inner {
-            position: relative; width: 100%; height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 2.0s cubic-bezier(0.25, 1, 0.4, 1);
-            border-radius: var(--card-radius);
-            box-shadow: 0 0 20px rgba(212,175,55,0.4);
-        }
-
+        .anim-card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 2.0s cubic-bezier(0.25, 1, 0.4, 1); border-radius: var(--card-radius); box-shadow: 0 0 20px rgba(212,175,55,0.4); }
         .anim-card-inner.flip { transform: rotateY(1620deg); box-shadow: 0 0 60px rgba(212,175,55,0.8); }
-        
-        /* Pulso Prismático durante o evento de revelação no ar */
         .anim-card-inner.flip.mythic-glow { animation: mythic-pulse-reveal-prismatic 2s infinite alternate ease-in-out; }
+        
         @keyframes mythic-pulse-reveal-prismatic {
             0% { box-shadow: 0 0 8px rgba(255, 71, 87, 0.6), 0 0 15px rgba(255, 165, 2, 0.4); }
             33% { box-shadow: 0 0 8px rgba(46, 213, 115, 0.8), 0 0 15px rgba(30, 144, 255, 0.5); }
@@ -293,40 +240,23 @@
             100% { box-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 20px rgba(30, 144, 255, 0.8); }
         }
 
-        .anim-card-face {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            backface-visibility: hidden; border-radius: var(--card-radius); overflow: hidden;
-        }
-
+        .anim-card-face { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; border-radius: var(--card-radius); overflow: hidden; }
         .anim-card-back { background-size: cover; background-position: center; } 
         .anim-card-front { transform: rotateY(180deg); background: #000; }
         .anim-card-front img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .anim-card-front::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; opacity: 1; z-index: 2; border-radius: var(--card-radius); }
         .anim-card-wrapper.reveal .anim-card-front::after { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* Aura Externa Branca do Flash */
         .anim-card-wrapper::before {
             content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
             background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 60%);
-            opacity: 0; pointer-events: none; mix-blend-mode: screen; z-index: 10;
-            transition: opacity 0.3s ease-in;
+            opacity: 0; pointer-events: none; mix-blend-mode: screen; z-index: 10; transition: opacity 0.3s ease-in;
         }
         .anim-card-wrapper.flash-peak::before { opacity: 1; }
         .anim-card-wrapper.flash-fade::before { opacity: 0; transition: opacity 1.5s ease-out; }
 
-        /* KEYFRAMES GERAIS */
-        @keyframes epic-shockwave-prismatic { 
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 
-            40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); } 
-            100% { transform: translate(-50%, -50%) scale(30); opacity: 0; } 
-        }
-        
-        @keyframes build-up-tension-prismatic {
-            0% { transform: translateX(0) rotate(0); filter: brightness(1); }
-            50% { filter: brightness(2) drop-shadow(0 0 20px rgba(156, 136, 255, 0.8)); }
-            100% { transform: translateX(0) rotate(0); filter: brightness(4) drop-shadow(0 0 40px rgba(255, 255, 255, 1)); box-shadow: 0 0 200px #fff; }
-        }
-        
+        @keyframes epic-shockwave-prismatic { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 40% { opacity: 1; box-shadow: 0 0 200px rgba(255,255,255,1); } 100% { transform: translate(-50%, -50%) scale(30); opacity: 0; } }
+        @keyframes build-up-tension-prismatic { 0% { transform: translateX(0) rotate(0); filter: brightness(1); } 50% { filter: brightness(2) drop-shadow(0 0 20px rgba(156, 136, 255, 0.8)); } 100% { transform: translateX(0) rotate(0); filter: brightness(4) drop-shadow(0 0 40px rgba(255, 255, 255, 1)); box-shadow: 0 0 200px #fff; } }
         @keyframes float-pack { 0%, 100% { transform: scale(1.45) translateY(0); } 50% { transform: scale(1.45) translateY(-10px); } }
         @keyframes pulse-text { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @keyframes shake-pack { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px) rotate(-4deg); } 75% { transform: translateX(6px) rotate(4deg); } }
@@ -359,7 +289,6 @@
         </div>
     </div>
 
-    <!-- Overlay da Animação UNIFICADO -->
     <div id="summon-overlay" class="hide-on-print">
         <div class="pack-floater">
             <div id="pack-element" class="pack-base" data-text=""></div>
@@ -522,216 +451,3 @@
                             const offset = (index - (itensNormais.length - 1) / 2) * 220;
                             wrapper.style.transition = 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease-out';
                             wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                            wrapper.style.opacity = '1';
-                        }, 100 * index);
-                    });
-
-                    await new Promise(r => setTimeout(r, 1200));
-                    animCards.forEach(({wrapper, inner}, index) => {
-                        setTimeout(() => {
-                            const offset = (index - (itensNormais.length - 1) / 2) * 220;
-                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
-                            wrapper.style.transform = `translate(calc(-50% + ${offset}px), -50%) scale(${baseScale})`;
-                            wrapper.style.zIndex = "1000" + index; 
-                            inner.classList.add('flip');
-                            setTimeout(() => { wrapper.classList.add('flash-peak'); }, 1700);
-                            setTimeout(() => {
-                                wrapper.classList.remove('flash-peak');
-                                wrapper.classList.add('flash-fade', 'reveal');
-                            }, 2000);
-                        }, index * 1000);
-                    });
-
-                    await new Promise(r => setTimeout(r, 3800 + (animCards.length * 1000)));
-                    animCards.forEach(({wrapper}, index) => {
-                        const target = document.querySelectorAll('.album-grid .card')[itensNormais[index].id - 1];
-                        if (target) {
-                            const rect = target.getBoundingClientRect();
-                            wrapper.style.left = `${rect.left}px`; wrapper.style.top = `${rect.top}px`;
-                            wrapper.style.transform = `translate(0px, 0px) scale(1)`; 
-                            wrapper.style.opacity = '0'; 
-                        }
-                    });
-
-                    await new Promise(r => setTimeout(r, 1200));
-                    document.querySelectorAll('.anim-card-wrapper').forEach(e => e.remove());
-
-                    // --- PARTE MÍTICA ---
-                    if (itemEspecial) {
-                        await new Promise(r => setTimeout(r, 500)); 
-                        pack.style.display = 'block';
-                        pack.style.opacity = '1';
-                        pack.style.pointerEvents = 'auto';
-                        
-                        pack.style.backgroundImage = "url('verso_mitico.jpeg')";
-                        pack.setAttribute('data-text', 'O PANTEÃO ESTÁ COMPLETO. CLIQUE PARA O DROP MÍTICO.');
-                        
-                        pack.classList.remove('explode', 'shaking', 'shaking-epic');
-                        floater.classList.remove('explode-fx');
-
-                        pack.onclick = async () => {
-                            pack.onclick = null;
-                            pack.classList.add('shaking-epic'); 
-                            await new Promise(r => setTimeout(r, 1500)); 
-                            pack.classList.remove('shaking-epic');
-                            pack.style.display = 'none'; 
-                            floater.classList.add('explode-fx'); 
-                            
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'anim-card-wrapper';
-                            const inner = document.createElement('div');
-                            inner.className = 'anim-card-inner';
-                            const fBack = document.createElement('div'); fBack.className = 'anim-card-face anim-card-back';
-                            
-                            fBack.style.backgroundImage = "url('verso_mitico.jpeg')"; 
-
-                            const fFront = document.createElement('div'); fFront.className = 'anim-card-face anim-card-front';
-                            const img = document.createElement('img'); img.src = `especial_${itemEspecial.id}.jpeg`;
-                            fFront.appendChild(img); inner.appendChild(fBack); inner.appendChild(fFront); wrapper.appendChild(inner);
-                            overlay.appendChild(wrapper);
-
-                            wrapper.style.transform = `translate(-50%, -50%) scale(${baseScale})`;
-                            wrapper.style.opacity = '0';
-                            setTimeout(() => { wrapper.style.transition = 'opacity 0.6s ease-out'; wrapper.style.opacity = '1'; }, 50);
-
-                            await new Promise(r => setTimeout(r, 1200));
-                            wrapper.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s ease, left 1.2s ease-in-out, top 1.2s ease-in-out';
-                            inner.classList.add('flip');
-                            setTimeout(() => { wrapper.classList.add('flash-peak'); }, 1700);
-                            setTimeout(() => {
-                                wrapper.classList.remove('flash-peak');
-                                wrapper.classList.add('flash-fade', 'reveal');
-                                inner.classList.add('mythic-glow');
-                            }, 2000);
-
-                            await new Promise(r => setTimeout(r, 5000));
-                            const target = document.getElementById('specialCardContainer');
-                            const rect = target.getBoundingClientRect();
-                            wrapper.style.left = `${rect.left}px`; wrapper.style.top = `${rect.top}px`;
-                            wrapper.style.transform = `translate(0px, 0px) scale(1)`; wrapper.style.opacity = '0'; 
-                            await new Promise(r => setTimeout(r, 1200));
-                            overlay.style.display = 'none';
-                            resolve();
-                        };
-                    } else {
-                        overlay.style.display = 'none';
-                        resolve();
-                    }
-                };
-            });
-        }
-
-        document.getElementById('btnResgatar').onclick = async () => {
-            const cod = document.getElementById("codigoInput").value.trim().toUpperCase();
-            if (!cod) return alert("Mestre, insira um código válido.");
-            const codigoSnap = await getDoc(doc(db, "codigos", cod));
-            if (!codigoSnap.exists() || codigoSnap.data().ativo === false) return alert("Código inválido ou selado.");
-
-            const userRef = doc(db, "usuarios", usuarioAtual.uid);
-            const snap = await getDoc(userRef);
-            const d = snap.data();
-            if (d.codigos_usados?.includes(cod)) return alert("Este feitiço já foi lançado por você!");
-
-            let cartasParaAdicionar = [];
-            const atuais = (d.cartas_desbloqueadas || []).map(Number);
-            let faltantes = cartasDisponiveis.map(c => c.id).filter(id => !atuais.includes(id));
-
-            if (atuais.length >= TOTAL_SLOTS && d.carta_especial) return alert("Seu compêndio já está completo!");
-
-            const numSorteio = Math.min(1, TOTAL_SLOTS - atuais.length);
-            for (let i = 0; i < numSorteio; i++) {
-                if (faltantes.length > 0) {
-                    const idx = Math.floor(Math.random() * faltantes.length);
-                    cartasParaAdicionar.push(faltantes[idx]);
-                    faltantes.splice(idx, 1);
-                }
-            }
-
-            const totalApos = new Set([...atuais, ...cartasParaAdicionar.map(Number)]);
-            let updateData = { cartas_desbloqueadas: arrayUnion(...cartasParaAdicionar), codigos_usados: arrayUnion(cod) };
-            
-            let ganhouMítica = false;
-            if (totalApos.size >= TOTAL_SLOTS && !d.carta_especial) {
-                const mythicId = Math.floor(Math.random() * 4) + 1;
-                updateData.carta_especial = mythicId;
-                ganhouMítica = true;
-            }
-
-            await updateDoc(userRef, updateData);
-            document.getElementById("codigoInput").value = "";
-            
-            await executarFluxoAnimacao(cartasParaAdicionar.map(id => ({id})), ganhouMítica ? {id: updateData.carta_especial} : null);
-            await carregarDados();
-        };
-
-        // --- BOTÃO COMPARTILHAR CORRIGIDO ---
-        document.getElementById('btnShare').onclick = async () => {
-            const btn = document.getElementById('btnShare');
-            const textoOriginal = btn.innerText;
-            btn.innerText = "Gerando Imagem...";
-            btn.disabled = true;
-
-            try {
-                // Esconde os controles da interface
-                document.querySelectorAll('.hide-on-print').forEach(e => e.style.display = 'none');
-                
-                const canvas = await html2canvas(document.body, { 
-                    backgroundColor: '#070709', 
-                    scale: 2,
-                    useCORS: true 
-                });
-                
-                // RESTAURAÇÃO CORRETA:
-                document.querySelectorAll('.hide-on-print').forEach(e => {
-                    // SE FOR O OVERLAY DE ANIMAÇÃO OU O MODAL, GARANTE QUE VOLTE INVISÍVEL
-                    if(e.id === 'summon-overlay' || e.id === 'card-modal') {
-                        e.style.display = 'none';
-                    } else {
-                        e.style.display = 'flex';
-                    }
-                });
-
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                if (!blob) throw new Error("Falha na geração da imagem");
-
-                try {
-                    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-                    alert("Compêndio copiado com sucesso! Cole diretamente no WhatsApp ou Discord (Ctrl+V).");
-                } catch (clipboardError) {
-                    const imgURL = URL.createObjectURL(blob);
-                    const link = document.createElement("a");
-                    link.download = `Compendio_Tavernas.png`;
-                    link.href = imgURL;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(imgURL);
-                    alert("Seu navegador bloqueou a cópia direta, mas o Compêndio foi salvo nos seus Downloads!");
-                }
-            } catch (error) {
-                console.error("Erro ao gerar compêndio:", error);
-                alert("Os deuses bloquearam a visão! Erro ao gerar a imagem.");
-                
-                // Tratamento de erro também precisa restaurar corretamente
-                document.querySelectorAll('.hide-on-print').forEach(e => {
-                    if(e.id === 'summon-overlay' || e.id === 'card-modal') {
-                        e.style.display = 'none';
-                    } else {
-                        e.style.display = 'flex';
-                    }
-                });
-            } finally {
-                btn.innerText = textoOriginal;
-                btn.disabled = false;
-            }
-        };
-
-        document.getElementById('tabLogin').onclick = () => { document.getElementById('formLogin').classList.add('active'); document.getElementById('formSignup').classList.remove('active'); document.getElementById('tabLogin').classList.add('active'); document.getElementById('tabSignup').classList.remove('active'); };
-        document.getElementById('tabSignup').onclick = () => { document.getElementById('formSignup').classList.add('active'); document.getElementById('formLogin').classList.remove('active'); document.getElementById('tabSignup').classList.add('active'); document.getElementById('tabLogin').classList.add('active'); };
-        document.getElementById('btnGoogleLogin').onclick = () => signInWithPopup(auth, provider);
-        document.getElementById('btnLogout').onclick = () => signOut(auth);
-        document.getElementById('btnEmailLogin').onclick = () => { const email = document.getElementById('emailLogin').value.trim(); const pass = document.getElementById('passLogin').value; if (!email || !pass) return alert("Preencha os campos."); signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message)); };
-        document.getElementById('btnEmailSignup').onclick = async () => { const name = document.getElementById('nameSignup').value.trim(); const email = document.getElementById('emailSignup').value.trim(); const pass = document.getElementById('passSignup').value; if (!name || !email || !pass) return alert("Preencha todos os campos."); try { const res = await createUserWithEmailAndPassword(auth, email, pass); await updateProfile(res.user, { displayName: name }); await setDoc(doc(db, "usuarios", res.user.uid), { nome: name, email: email, cartas_desbloqueadas: [], codigos_usados: [] }); location.reload(); } catch (e) { alert("Erro ao cadastrar: " + e.message); } };
-    </script>
-</body>
-</html>
