@@ -382,10 +382,22 @@
         async function carregarDados() {
             const userRef = doc(db, "usuarios", usuarioAtual.uid);
             const snap = await getDoc(userRef);
+            
             if (snap.exists()) {
                 const dados = snap.data();
                 renderizarGrid(dados.cartas_desbloqueadas || [], dados.carta_especial);
                 document.getElementById("displayNome").innerText = (dados.nome || "Guerreiro").toUpperCase();
+            } else {
+                const novoNome = usuarioAtual.displayName || "Guerreiro";
+                await setDoc(userRef, { 
+                    nome: novoNome, 
+                    email: usuarioAtual.email, 
+                    cartas_desbloqueadas: [], 
+                    codigos_usados: [] 
+                });
+                
+                renderizarGrid([], null);
+                document.getElementById("displayNome").innerText = novoNome.toUpperCase();
             }
         }
 
@@ -715,12 +727,65 @@
             }
         };
 
-        document.getElementById('tabLogin').onclick = () => { document.getElementById('formLogin').classList.add('active'); document.getElementById('formSignup').classList.remove('active'); document.getElementById('tabLogin').classList.add('active'); document.getElementById('tabSignup').classList.remove('active'); };
-        document.getElementById('tabSignup').onclick = () => { document.getElementById('formSignup').classList.add('active'); document.getElementById('formLogin').classList.remove('active'); document.getElementById('tabSignup').classList.add('active'); document.getElementById('tabLogin').classList.add('active'); };
-        document.getElementById('btnGoogleLogin').onclick = () => signInWithPopup(auth, provider);
+        // --- CONTROLES DE INTERFACE E AUTENTICAÇÃO ---
+        document.getElementById('tabLogin').onclick = () => { 
+            document.getElementById('formLogin').classList.add('active'); 
+            document.getElementById('formSignup').classList.remove('active'); 
+            document.getElementById('tabLogin').classList.add('active'); 
+            document.getElementById('tabSignup').classList.remove('active'); 
+        };
+        
+        document.getElementById('tabSignup').onclick = () => { 
+            document.getElementById('formSignup').classList.add('active'); 
+            document.getElementById('formLogin').classList.remove('active'); 
+            document.getElementById('tabSignup').classList.add('active'); 
+            document.getElementById('tabLogin').classList.remove('active'); 
+        };
+
+        document.getElementById('btnGoogleLogin').onclick = () => {
+            signInWithPopup(auth, provider).catch(e => {
+                if (e.code !== 'auth/popup-closed-by-user') {
+                    alert("Os deuses interromperam a conexão. Erro no Google: " + e.message);
+                }
+            });
+        };
+
         document.getElementById('btnLogout').onclick = () => signOut(auth);
-        document.getElementById('btnEmailLogin').onclick = () => { const email = document.getElementById('emailLogin').value.trim(); const pass = document.getElementById('passLogin').value; if (!email || !pass) return alert("Preencha os campos."); signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message)); };
-        document.getElementById('btnEmailSignup').onclick = async () => { const name = document.getElementById('nameSignup').value.trim(); const email = document.getElementById('emailSignup').value.trim(); const pass = document.getElementById('passSignup').value; if (!name || !email || !pass) return alert("Preencha todos os campos."); try { const res = await createUserWithEmailAndPassword(auth, email, pass); await updateProfile(res.user, { displayName: name }); await setDoc(doc(db, "usuarios", res.user.uid), { nome: name, email: email, cartas_desbloqueadas: [], codigos_usados: [] }); location.reload(); } catch (e) { alert("Erro ao cadastrar: " + e.message); } };
+        
+        document.getElementById('btnEmailLogin').onclick = () => { 
+            const email = document.getElementById('emailLogin').value.trim(); 
+            const pass = document.getElementById('passLogin').value; 
+            if (!email || !pass) return alert("Preencha os campos."); 
+            signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message)); 
+        };
+
+        document.getElementById('btnEmailSignup').onclick = async () => { 
+            const name = document.getElementById('nameSignup').value.trim(); 
+            const email = document.getElementById('emailSignup').value.trim(); 
+            const pass = document.getElementById('passSignup').value; 
+            
+            if (!name || !email || !pass) return alert("Preencha todos os campos."); 
+            
+            try { 
+                const res = await createUserWithEmailAndPassword(auth, email, pass); 
+                await updateProfile(res.user, { displayName: name }); 
+                await setDoc(doc(db, "usuarios", res.user.uid), { 
+                    nome: name, 
+                    email: email, 
+                    cartas_desbloqueadas: [], 
+                    codigos_usados: [] 
+                }); 
+                location.reload(); 
+            } catch (e) { 
+                if (e.code === 'auth/email-already-in-use') {
+                    alert("Este e-mail já está em uso! Se você usou o Google antes, feche esta mensagem e clique em 'Acessar com Google' ou faça login na aba 'ENTRAR'.");
+                } else if (e.code === 'auth/weak-password') {
+                    alert("A senha é muito fraca. Use pelo menos 6 caracteres.");
+                } else {
+                    alert("Erro ao cadastrar: " + e.message); 
+                }
+            } 
+        };
     </script>
 </body>
 </html>
